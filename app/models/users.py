@@ -1,6 +1,5 @@
 import enum
-
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Enum
+from sqlalchemy import Column, Integer, String, Enum
 from app.config import Base
 
 
@@ -14,6 +13,8 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True)
-    password = Column(String)
+    employee_number = Column(Integer, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
     team = Column(Enum(TeamEnum), nullable=False)
