@@ -1,3 +1,4 @@
 .env
 .idea/*
 watch_black.py
+__pycache__/
