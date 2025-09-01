@@ -2,3 +2,7 @@ greenlet==3.2.4
 psycopg2-binary==2.9.10
 SQLAlchemy==2.0.43
 typing_extensions==4.14.1
+passlib==1.7.4
+python-dotenv==1.1.1
+pytest==8.4.1
+bcrypt==4.3.0
