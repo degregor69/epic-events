@@ -6,3 +6,6 @@ passlib==1.7.4
 python-dotenv==1.1.1
 pytest==8.4.1
 bcrypt==4.3.0
+PyJWT==2.10.1
+black==25.1.0
+faker==37.6.0
