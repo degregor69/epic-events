@@ -10,6 +10,6 @@ DATABASE_URL = (
     f"@localhost:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}"
 )
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
