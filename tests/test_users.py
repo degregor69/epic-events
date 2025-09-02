@@ -1,11 +1,8 @@
-import time
-
 import pytest
 from faker import Faker
-from app.controllers.users import create_user, login
+from app.controllers.users import create_user
 from app.models import User
 from app.utils.auth import is_authenticated
-from app.utils import security
 from app.utils.security import (
     create_access_token,
     save_tokens,
