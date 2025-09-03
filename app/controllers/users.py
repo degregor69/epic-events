@@ -3,7 +3,13 @@ import json
 from sqlalchemy.orm import Session
 
 from app.models import User
-from app.utils.security import hash_password, verify_password, create_access_token
+from app.utils.security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    create_refresh_token,
+    save_tokens,
+)
 
 
 def create_user(db, name, email, password, team, employee_number):
@@ -21,14 +27,15 @@ def create_user(db, name, email, password, team, employee_number):
     return user
 
 
-def login(db: Session, email: str, password: str):
-    user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(password, user.hashed_password):
-        raise Exception("Invalid credentials")
+def login_user(db: Session, email: str, password: str):
+    user = db.query(User).filter_by(email=email).first()
+    if not user:
+        return False, "User not found"
+    if not verify_password(password, user.hashed_password):
+        return False, "Wrong password"
 
-    token = create_access_token(user.email)
+    access_token = create_access_token(user.email)
+    refresh_token = create_refresh_token(user.email)
 
-    with open("token.json", "w") as f:
-        json.dump({"token": token}, f)
-
-    return token
+    save_tokens({"access_token": access_token, "refresh_token": refresh_token})
+    return True, "Login successful"
