@@ -2,7 +2,7 @@ from datetime import datetime
 
 from app.config import Base, engine, SessionLocal
 from app.controllers.users import create_user
-from app.models import User, Client, Contract
+from app.models import User, Client, Contract, Event
 from app.models.roles import Role
 
 
@@ -33,6 +33,7 @@ def seed_clients(db: SessionLocal):
         )
         db.add(client)
         db.commit()
+        db.refresh(client)
         print("✅ Client created")
     return client
 
@@ -54,8 +55,31 @@ def seed_contracts(db: SessionLocal, client_id: int, user_id: int):
         db.add(contract)
         db.commit()
         print("✅ Contract created")
+        return contract
     else:
         print("⚠ Contract already exists")
+
+
+def seed_events(db: SessionLocal, client_id: int, contract_id: int):
+    event = (
+        db.query(Event).filter_by(client_id=client_id, contract_id=contract_id).first()
+    )
+    if not event:
+        event = Event(
+            client_id=client_id,
+            contract_id=contract_id,
+            start_date=datetime.now(),
+            end_date=datetime.now(),
+            support_contact="Michel",
+            location="Brasil",
+            attendees=28,
+            notes="Need to confirm number of attendees",
+        )
+        db.add(event)
+        db.commit()
+        print("✅ Event created")
+    else:
+        print("⚠ Event already exists")
 
 
 def seed_management_user(db: SessionLocal, role_id: int):
@@ -125,6 +149,7 @@ def seed():
 
     client = seed_clients(db)
     contract = seed_contracts(db, client.id, management_user.id)
+    event = seed_events(db, client.id, contract.id)
     db.close()
 
 
