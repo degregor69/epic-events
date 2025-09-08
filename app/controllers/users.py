@@ -12,12 +12,12 @@ from app.utils.security import (
 )
 
 
-def create_user(db, name, email, password, team, employee_number):
+def create_user(db, name, email, password, role_id, employee_number):
     user = User(
         name=name,
         email=email,
         hashed_password=hash_password(password),
-        team=team,
+        role_id=role_id,
         employee_number=employee_number,
     )
     db.add(user)
