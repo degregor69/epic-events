@@ -1,8 +1,11 @@
 from app.controllers.contracts import get_all_contracts
 from app.config import get_db
+from app.models import User
+from app.utils.permissions import is_management
 
 
-def list_all_contracts(callback=None):
+@is_management
+def list_all_contracts(user: User, callback=None):
     db = next(get_db())
     contracts = get_all_contracts(db)
 

@@ -32,7 +32,7 @@ def show_menu(user):
         if choice == "1":
             pass
         elif choice == "2":
-            list_all_contracts(callback=lambda: show_menu(user))
+            list_all_contracts(user=user, callback=lambda: show_menu(user))
         elif choice == "3":
             print("🔒 Déconnexion...")
         else:
