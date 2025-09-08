@@ -1,11 +1,10 @@
 from app.controllers.contracts import get_all_contracts
 from app.config import get_db
-from app.models import User
-from app.utils.permissions import is_management
+from app.utils.auth import is_authenticated
 
 
-@is_management
-def list_all_contracts(user: User, callback=None):
+@is_authenticated
+def list_all_contracts():
     db = next(get_db())
     contracts = get_all_contracts(db)
 
@@ -18,5 +17,3 @@ def list_all_contracts(user: User, callback=None):
             f"\nID: {c.id} | Client ID: {c.client_id} | User ID: {c.user_id} | "
             f"Total: {c.total_amount} | Pending: {c.pending_amount} | Signed: {c.signed}\n"
         )
-    if callback:
-        callback()

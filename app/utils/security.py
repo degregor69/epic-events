@@ -70,7 +70,6 @@ def save_tokens(tokens: dict, filename: str = token_file):
 
 
 def load_tokens(filename: str = token_file) -> dict:
-    print(f"Filename from {filename} from load_tokens")
     if not os.path.exists(filename):
         raise FileNotFoundError("No token.json found")
     with open(filename, "r") as f:

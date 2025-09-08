@@ -28,6 +28,6 @@ def is_authenticated(func):
             except Exception:
                 raise Exception("Authentication failed")
 
-        return func(*args, **kwargs)
+        return func()
 
     return wrapper
