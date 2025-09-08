@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from app.config import Base, engine, SessionLocal
 from app.controllers.users import create_user
-from app.models import User
+from app.models import User, Client, Contract
 from app.models.roles import Role
 
 
@@ -20,33 +22,73 @@ def seed_roles(db: SessionLocal):
     return roles
 
 
+def seed_clients(db: SessionLocal):
+    client = db.query(Client).filter_by(email="client@test.com").first()
+    if not client:
+        client = Client(
+            full_name="Test Client",
+            email="client@test.com",
+            phone="0123456789",
+            company="TestCorp",
+            internal_contact="Michel Test",
+        )
+        db.add(client)
+        db.commit()
+        print("✅ Client created")
+    return client
+
+
+def seed_contracts(db: SessionLocal, client: Client, user: User):
+    contract = (
+        db.query(Contract).filter_by(client_id=client.id, user_id=user.id).first()
+    )
+    if not contract:
+        contract = Contract(
+            client_id=client.id,
+            user_id=user.id,
+            total_amount=10000,
+            pending_amount=5000,
+            signed=True,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+        db.add(contract)
+        db.commit()
+        print("✅ Contract created")
+    else:
+        print("⚠ Contract already exists")
+
+
+def seed_users(db: SessionLocal, role_id: int):
+    existing = db.query(User).filter_by(email="test_management@epic-events.com").first()
+    if not existing:
+        user = create_user(
+            db=db,
+            name="Test Manager",
+            email="test_management@epic-events.com",
+            password="test123?",
+            role_id=role_id,
+            employee_number=1,
+        )
+        db.add(user)
+        db.commit()
+        print("✅ User seed created")
+        return user
+    else:
+        print("⚠ User already exists")
+
+
 def seed():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
-    session = SessionLocal()
+    db = SessionLocal()
 
-    roles = seed_roles(session)
-
-    existing = (
-        session.query(User).filter_by(email="test_management@epic-events.com").first()
-    )
-    if not existing:
-        user = create_user(
-            db=session,
-            name="Test Manager",
-            email="test_management@epic-events.com",
-            password="test123?",
-            role_id=roles[1].id,
-            employee_number=1,
-        )
-        session.add(user)
-        session.commit()
-        print("✅ User seed created")
-    else:
-        print("⚠ User already exists")
-
-    session.close()
+    roles = seed_roles(db)
+    user = seed_users(db, roles[1].id)
+    client = seed_clients(db)
+    contract = seed_contracts(db, client, user)
+    db.close()
 
 
 if __name__ == "__main__":
