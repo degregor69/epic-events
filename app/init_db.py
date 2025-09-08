@@ -17,7 +17,6 @@ def seed_roles(db: SessionLocal):
     db.commit()
     for role in roles:
         db.refresh(role)
-    db.close()
     print("✅ Roles seed created")
     return roles
 
@@ -38,14 +37,14 @@ def seed_clients(db: SessionLocal):
     return client
 
 
-def seed_contracts(db: SessionLocal, client: Client, user: User):
+def seed_contracts(db: SessionLocal, client_id: int, user_id: int):
     contract = (
-        db.query(Contract).filter_by(client_id=client.id, user_id=user.id).first()
+        db.query(Contract).filter_by(client_id=client_id, user_id=user_id).first()
     )
     if not contract:
         contract = Contract(
-            client_id=client.id,
-            user_id=user.id,
+            client_id=client_id,
+            user_id=user_id,
             total_amount=10000,
             pending_amount=5000,
             signed=True,
@@ -59,7 +58,7 @@ def seed_contracts(db: SessionLocal, client: Client, user: User):
         print("⚠ Contract already exists")
 
 
-def seed_users(db: SessionLocal, role_id: int):
+def seed_management_user(db: SessionLocal, role_id: int):
     existing = db.query(User).filter_by(email="test_management@epic-events.com").first()
     if not existing:
         user = create_user(
@@ -72,10 +71,41 @@ def seed_users(db: SessionLocal, role_id: int):
         )
         db.add(user)
         db.commit()
-        print("✅ User seed created")
+        db.refresh(user)
         return user
+
     else:
         print("⚠ User already exists")
+
+
+def seed_sales_user(db: SessionLocal, role_id: int):
+    existing = db.query(User).filter_by(email="test_sales@epic-events.com").first()
+    if not existing:
+        user = create_user(
+            db=db,
+            name="Test Sales",
+            email="test_sales@epic-events.com",
+            password="test123?",
+            role_id=role_id,
+            employee_number=3,
+        )
+        db.add(user)
+        db.commit()
+
+
+def seed_support_user(db: SessionLocal, role_id: int):
+    existing = db.query(User).filter_by(email="test_support@epic-events.com").first()
+    if not existing:
+        user = create_user(
+            db=db,
+            name="Test Support",
+            email="test_support@epic-events.com",
+            password="test123?",
+            role_id=role_id,
+            employee_number=2,
+        )
+        db.add(user)
+        db.commit()
 
 
 def seed():
@@ -86,9 +116,15 @@ def seed():
 
     roles = seed_roles(db)
     management_role = next(role for role in roles if role.name == "management")
-    user = seed_users(db, management_role.id)
+    support_role = next(role for role in roles if role.name == "support")
+    sales_role = next(role for role in roles if role.name == "sales")
+
+    management_user = seed_management_user(db, management_role.id)
+    support_user = seed_support_user(db, support_role.id)
+    sales_user = seed_sales_user(db, sales_role.id)
+
     client = seed_clients(db)
-    contract = seed_contracts(db, client, user)
+    contract = seed_contracts(db, client.id, management_user.id)
     db.close()
 
 

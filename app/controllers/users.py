@@ -23,7 +23,6 @@ def create_user(db, name, email, password, role_id, employee_number):
     db.add(user)
     db.commit()
     db.refresh(user)
-    db.close()
     return user
 
 
