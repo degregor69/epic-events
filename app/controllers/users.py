@@ -30,12 +30,12 @@ def create_user(db, name, email, password, role_id, employee_number):
 def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter_by(email=email).first()
     if not user:
-        return False, "User not found"
+        return False, "User not found", None
     if not verify_password(password, user.hashed_password):
-        return False, "Wrong password"
+        return False, "Wrong password", None
 
     access_token = create_access_token(user.email)
     refresh_token = create_refresh_token(user.email)
 
     save_tokens({"access_token": access_token, "refresh_token": refresh_token})
-    return True, "Login successful"
+    return True, "Login successful", user

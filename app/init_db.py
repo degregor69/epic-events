@@ -5,7 +5,7 @@ from app.models.roles import Role
 
 
 def seed_roles(db: SessionLocal):
-    roles_names = ["management", "commercial", "support"]
+    roles_names = ["management", "sales", "support"]
     roles = []
     for role_name in roles_names:
         if not db.query(Role).filter_by(name=role_name).first():
