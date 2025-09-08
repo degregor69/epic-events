@@ -85,7 +85,8 @@ def seed():
     db = SessionLocal()
 
     roles = seed_roles(db)
-    user = seed_users(db, roles[1].id)
+    management_role = next(role for role in roles if role.name == "management")
+    user = seed_users(db, management_role.id)
     client = seed_clients(db)
     contract = seed_contracts(db, client, user)
     db.close()
