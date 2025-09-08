@@ -16,14 +16,15 @@ fake = Faker()
 TOKEN_FILE = "token.json"
 
 
-def test_create_user(db):
+def test_create_user(db, roles):
+    selected_role = roles[1]
     password = fake.pystr(min_chars=12, max_chars=12)
     user = create_user(
         db=db,
         name="Test User",
         email="test_user@test.com",
         password=password,
-        team="management",
+        role_id=selected_role.id,
         employee_number=fake.pyint(min_value=100, max_value=200),
     )
     assert user.id is not None
