@@ -18,6 +18,38 @@ fake = Faker()
 TOKEN_FILE = "token.json"
 
 
+def test_expired_access_and_refresh():
+    with patch("app.utils.auth.load_tokens") as mock_load:
+        mock_load.return_value = {
+            "access_token": "expired",
+            "refresh_token": "expired",
+        }
+
+        @is_authenticated
+        def secret_action():
+            return "secret!"
+
+        with pytest.raises(Exception, match="Authentication failed"):
+            secret_action()
+
+
+def test_authentication_flow(db, support_user):
+    access_token = create_access_token(support_user.email)
+    refresh_token = create_refresh_token(support_user.email)
+    save_tokens({"access_token": access_token, "refresh_token": refresh_token})
+
+    tokens = load_tokens()
+    assert "access_token" in tokens
+    payload = verify_access_token(tokens["access_token"])
+    assert payload["sub"] == support_user.email
+
+    @is_authenticated
+    def secret_action():
+        return "secret!"
+
+    assert secret_action() == "secret!"
+
+
 def test_create_user(db, roles, management_user):
     selected_role = roles[1]
     password = fake.pystr(min_chars=12, max_chars=12)
@@ -75,39 +107,6 @@ def test_update_user_view_success(db, support_user, roles, management_user):
     assert support_user.role_id == roles[0].id
 
 
-def test_authentication_flow(db, support_user):
-    access_token = create_access_token(support_user.email)
-    refresh_token = create_refresh_token(support_user.email)
-    save_tokens({"access_token": access_token, "refresh_token": refresh_token})
-
-    tokens = load_tokens()
-    assert "access_token" in tokens
-    payload = verify_access_token(tokens["access_token"])
-    assert payload["sub"] == support_user.email
-
-    @is_authenticated
-    def secret_action():
-        return "secret!"
-
-    assert secret_action() == "secret!"
-
-
-def test_expired_access_and_refresh():
-    with patch("app.utils.auth.load_tokens") as mock_load:
-        mock_load.return_value = {
-            "access_token": "expired",
-            "refresh_token": "expired",
-        }
-
-        @is_authenticated
-        def secret_action():
-            return "secret!"
-
-        with pytest.raises(Exception, match="Authentication failed"):
-            print(Exception)
-            secret_action()
-
-
 def test_create_user_view_permission_denied(
     support_user,
     db,
@@ -126,3 +125,12 @@ def test_delete_user(management_user, db, user_to_be_deleted):
 
         deleted_user = db.get(User, user_to_be_deleted.id)
         assert deleted_user is None
+
+
+def test_delete_user_view_permission_denied(
+    support_user,
+    db,
+):
+    with pytest.raises(Exception) as exc:
+        delete_user_view(support_user, db)
+        assert str(exc.value) == "Accès refusé (réservé au Management)"
