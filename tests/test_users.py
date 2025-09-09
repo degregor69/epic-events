@@ -12,6 +12,8 @@ from app.utils.security import (
 )
 from unittest.mock import patch
 
+from app.views.users import create_user_view
+
 fake = Faker()
 TOKEN_FILE = "token.json"
 
@@ -34,15 +36,15 @@ def test_create_user(db, roles):
     assert db_user.hashed_password != password
 
 
-def test_authentication_flow(db, user):
-    access_token = create_access_token(user.email)
-    refresh_token = create_refresh_token(user.email)
+def test_authentication_flow(db, support_user):
+    access_token = create_access_token(support_user.email)
+    refresh_token = create_refresh_token(support_user.email)
     save_tokens({"access_token": access_token, "refresh_token": refresh_token})
 
     tokens = load_tokens()
     assert "access_token" in tokens
     payload = verify_access_token(tokens["access_token"])
-    assert payload["sub"] == "alice@example.com"
+    assert payload["sub"] == support_user.email
 
     @is_authenticated
     def secret_action():
@@ -65,3 +67,30 @@ def test_expired_access_and_refresh():
         with pytest.raises(Exception, match="Authentication failed"):
             print(Exception)
             secret_action()
+
+
+def test_create_user_view_permission_denied(
+    support_user,
+    db,
+):
+    with pytest.raises(Exception) as exc:
+        create_user_view(support_user)
+        assert str(exc.value) == "Accès refusé (réservé au Management)"
+
+
+def test_create_user_view_success(db, management_user):
+    inputs = iter(
+        [
+            "John Doe",
+            "john@example.com",
+            "42",
+            "1",
+            "password123",
+        ]
+    )
+
+    with patch("builtins.input", lambda _: next(inputs)):
+        create_user_view(management_user)
+
+    created = db.query(User).filter_by(email="john@example.com").first()
+    assert created is not None

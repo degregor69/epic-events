@@ -6,35 +6,72 @@ from app.controllers.users import create_user
 from app.models import Event, Client, Contract, Role
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def db():
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     session = SessionLocal()
-    yield session
-    session.close()
-    Base.metadata.drop_all(bind=engine)
+    try:
+        yield session
+    finally:
+        session.close()
 
 
 @pytest.fixture
 def roles(db):
     role_names = ["management", "sales", "support"]
+    roles = []
+
     for name in role_names:
-        if not db.query(Role).filter_by(name=name).first():
-            db.add(Role(name=name))
-    db.commit()
-    return db.query(Role).filter(Role.name.in_(role_names)).all()
+        role = db.query(Role).filter_by(name=name).first()
+        if not role:
+            role = Role(name=name)
+            db.add(role)
+            db.commit()
+            db.refresh(role)
+        roles.append(role)
+
+    return roles
 
 
 @pytest.fixture
-def user(db, roles):
-    selected_role = roles[0]
+def support_user(db, roles):
+    support_role = next(role for role in roles if role.name == "support")
     user = create_user(
         db=db,
-        name="Alice Dupont",
-        email="alice@example.com",
+        name="Support User",
+        email="support_user@example.com",
         password="MotDePasse123!",
         employee_number=1,
-        role_id=selected_role.id,
+        role_id=support_role.id,
+    )
+    return user
+
+
+@pytest.fixture
+def management_user(db, roles):
+    management_role = next(role for role in roles if role.name == "management")
+    user = create_user(
+        db=db,
+        name="Management User",
+        email="management_user@example.com",
+        password="MotDePasse123!",
+        employee_number=2,
+        role_id=management_role.id,
+    )
+    return user
+
+
+@pytest.fixture
+def sales_user(db, roles):
+    sales_role = next(role for role in roles if role.name == "sales")
+    user = create_user(
+        db=db,
+        name="Sales User",
+        email="sales_user@example.com",
+        password="MotDePasse123!",
+        employee_number=3,
+        role_id=sales_role.id,
     )
     return user
 
@@ -63,17 +100,17 @@ def clients(db):
 
 
 @pytest.fixture
-def contracts(db, user, clients):
+def contracts(db, sales_user, clients):
     contract1 = Contract(
         client_id=clients[0].id,
-        user_id=user.id,
+        user_id=sales_user.id,
         total_amount=1000.0,
         pending_amount=500.0,
         signed=True,
     )
     contract2 = Contract(
         client_id=clients[1].id,
-        user_id=user.id,
+        user_id=sales_user.id,
         total_amount=2000.0,
         pending_amount=2000.0,
         signed=False,
@@ -86,7 +123,7 @@ def contracts(db, user, clients):
 
 
 @pytest.fixture
-def events(db, user, contracts, clients):
+def events(db, sales_user, contracts, clients):
     now = datetime.now()
     event1 = Event(
         client_id=clients[0].id,
