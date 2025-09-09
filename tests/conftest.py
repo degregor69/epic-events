@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from app.config import Base, engine, SessionLocal
 from app.controllers.users import create_user
-from app.models import Event, Client, Contract, Role
+from app.models import Event, Client, Contract, Role, User
 
 
 @pytest.fixture(scope="function")
@@ -45,42 +45,48 @@ def roles(db):
 @pytest.fixture
 def support_user(db, roles):
     support_role = next(role for role in roles if role.name == "support")
-    user = create_user(
-        db=db,
+    user = User(
         name="Support User",
         email="support_user@example.com",
-        password="MotDePasse123!",
+        hashed_password="MotDePasse123!",
         employee_number=1,
         role_id=support_role.id,
     )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     return user
 
 
 @pytest.fixture
 def management_user(db, roles):
     management_role = next(role for role in roles if role.name == "management")
-    user = create_user(
-        db=db,
+    user = User(
         name="Management User",
         email="management_user@example.com",
-        password="MotDePasse123!",
+        hashed_password="MotDePasse123!",
         employee_number=2,
         role_id=management_role.id,
     )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     return user
 
 
 @pytest.fixture
 def sales_user(db, roles):
     sales_role = next(role for role in roles if role.name == "sales")
-    user = create_user(
-        db=db,
+    user = User(
         name="Sales User",
         email="sales_user@example.com",
-        password="MotDePasse123!",
+        hashed_password="MotDePasse123!",
         employee_number=3,
         role_id=sales_role.id,
     )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     return user
 
 

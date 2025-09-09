@@ -43,19 +43,18 @@ def get_create_user_data(roles) -> dict:
     }
 
 
-@is_management
-def create_user_view(user, db=None):
+def create_user_view(current_user, db=None):
     db = db or next(get_db())
     roles = get_all_roles(db)
-    creation_data = get_create_user_data(roles)
-
-    created_user = create_user(
-        db=db,
-        name=creation_data.get("name"),
-        email=creation_data.get("email"),
-        password=creation_data.get("password"),
-        role_id=creation_data.get("role_id"),
-        employee_number=creation_data.get("employee_number"),
+    data = get_create_user_data(roles)
+    return create_user(
+        current_user,
+        db,
+        name=data["name"],
+        email=data["email"],
+        password=data["password"],
+        role_id=data["role_id"],
+        employee_number=data["employee_number"],
     )
 
     print(
@@ -88,7 +87,6 @@ def get_update_user_data(roles) -> dict:
     }
 
 
-@is_management
 def update_user_view(current_user, db=None):
     db = db or next(get_db())
     roles = get_all_roles(db)
@@ -96,6 +94,6 @@ def update_user_view(current_user, db=None):
     update_data = get_update_user_data(roles)
     user_id = update_data.pop("user_id")
 
-    updated_user = update_user(db, user_id, update_data)
+    updated_user = update_user(current_user, db, user_id, update_data)
     print(f"✅ User {updated_user.name} updated successfully")
     return updated_user

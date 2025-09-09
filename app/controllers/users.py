@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.models import User
+from app.utils.permissions import is_management
 from app.utils.security import (
     hash_password,
     verify_password,
@@ -10,7 +11,8 @@ from app.utils.security import (
 )
 
 
-def create_user(db, name, email, password, role_id, employee_number):
+@is_management
+def create_user(current_user, db, name, email, password, role_id, employee_number):
     user = User(
         name=name,
         email=email,
@@ -24,7 +26,8 @@ def create_user(db, name, email, password, role_id, employee_number):
     return user
 
 
-def update_user(db, user_id: int, updates: dict):
+@is_management
+def update_user(current_user, db, user_id: int, updates: dict):
     user: User = db.get(User, user_id)
     if not user:
         raise Exception("User not found")

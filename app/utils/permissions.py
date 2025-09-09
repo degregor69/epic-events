@@ -4,7 +4,8 @@ from functools import wraps
 def is_management(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        user = kwargs.get("user") or args[0]
+        user = kwargs.get("current_user") or args[0]
+        print(user)
         if not user or user.role.name != "management":
             raise Exception("Accès refusé (réservé au Management)")
         return func(*args, **kwargs)

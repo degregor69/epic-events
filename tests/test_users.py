@@ -18,10 +18,11 @@ fake = Faker()
 TOKEN_FILE = "token.json"
 
 
-def test_create_user(db, roles):
+def test_create_user(db, roles, management_user):
     selected_role = roles[1]
     password = fake.pystr(min_chars=12, max_chars=12)
     user = create_user(
+        current_user=management_user,
         db=db,
         name="Test User",
         email="test_user@test.com",
@@ -55,7 +56,7 @@ def test_create_user_view_success(db, management_user):
     assert user.role_id == 1
 
 
-def test_a_update_user_view_success(db, support_user, roles, management_user):
+def test_update_user_view_success(db, support_user, roles, management_user):
     with patch("app.views.users.get_update_user_data") as mock_get_update_user_data:
         mock_get_update_user_data.return_value = {
             "user_id": support_user.id,
