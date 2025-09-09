@@ -24,6 +24,20 @@ def create_user(db, name, email, password, role_id, employee_number):
     return user
 
 
+def update_user(db, user_id: int, updates: dict):
+    user: User = db.get(User, user_id)
+    if not user:
+        raise Exception("User not found")
+
+    for attr, value in updates.items():
+        if value is not None:
+            setattr(user, attr, value)
+
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter_by(email=email).first()
     if not user:

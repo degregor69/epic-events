@@ -9,12 +9,20 @@ from app.models import Event, Client, Contract, Role
 @pytest.fixture(scope="function")
 def db():
     Base.metadata.drop_all(bind=engine)
+    print("Db removed")
     Base.metadata.create_all(bind=engine)
+    print("Db created")
     session = SessionLocal()
+    print("Session created")
     try:
+        print("Session returned")
         yield session
     finally:
+        print("Session rollback")
+        session.rollback()
+        print("Session closing")
         session.close()
+        print("Session closed")
 
 
 @pytest.fixture
