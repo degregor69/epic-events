@@ -41,6 +41,14 @@ def update_user(current_user, db, user_id: int, updates: dict):
     return user
 
 
+@is_management
+def delete_user(current_user, db, user_id):
+    user = db.query(User).filter_by(id=user_id).first()
+    if user:
+        db.delete(user)
+        db.commit()
+
+
 def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter_by(email=email).first()
     if not user:

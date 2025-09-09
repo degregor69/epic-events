@@ -12,7 +12,7 @@ from app.utils.security import (
 )
 from unittest.mock import patch
 
-from app.views.users import create_user_view, update_user_view
+from app.views.users import create_user_view, update_user_view, delete_user_view
 
 fake = Faker()
 TOKEN_FILE = "token.json"
@@ -115,3 +115,14 @@ def test_create_user_view_permission_denied(
     with pytest.raises(Exception) as exc:
         create_user_view(support_user)
         assert str(exc.value) == "Accès refusé (réservé au Management)"
+
+
+def test_delete_user(management_user, db, user_to_be_deleted):
+    with patch(
+        "app.views.users.get_user_id_to_be_deleted"
+    ) as mock_get_user_id_to_be_deleted:
+        mock_get_user_id_to_be_deleted.return_value = user_to_be_deleted.id
+        delete_user_view(management_user, db=db)
+
+        deleted_user = db.get(User, user_to_be_deleted.id)
+        assert deleted_user is None

@@ -4,6 +4,7 @@ from app.config import Base, engine, SessionLocal
 from app.controllers.users import create_user
 from app.models import User, Client, Contract, Event
 from app.models.roles import Role
+from app.utils.security import hash_password
 
 
 def seed_roles(db: SessionLocal):
@@ -85,17 +86,17 @@ def seed_events(db: SessionLocal, client_id: int, contract_id: int):
 def seed_management_user(db: SessionLocal, role_id: int):
     existing = db.query(User).filter_by(email="test_management@epic-events.com").first()
     if not existing:
-        user = create_user(
-            db=db,
+        user = User(
             name="Test Manager",
             email="test_management@epic-events.com",
-            password="test123?",
+            hashed_password=hash_password("test123?"),
             role_id=role_id,
             employee_number=1,
         )
         db.add(user)
         db.commit()
         db.refresh(user)
+        print(f"{user.name} created")
         return user
 
     else:
@@ -105,31 +106,31 @@ def seed_management_user(db: SessionLocal, role_id: int):
 def seed_sales_user(db: SessionLocal, role_id: int):
     existing = db.query(User).filter_by(email="test_sales@epic-events.com").first()
     if not existing:
-        user = create_user(
-            db=db,
+        user = User(
             name="Test Sales",
             email="test_sales@epic-events.com",
-            password="test123?",
+            hashed_password=hash_password("test123?"),
             role_id=role_id,
             employee_number=3,
         )
         db.add(user)
         db.commit()
+        print(f"{user.name} created")
 
 
 def seed_support_user(db: SessionLocal, role_id: int):
     existing = db.query(User).filter_by(email="test_support@epic-events.com").first()
     if not existing:
-        user = create_user(
-            db=db,
+        user = User(
             name="Test Support",
             email="test_support@epic-events.com",
-            password="test123?",
+            hashed_password=hash_password("test123?"),
             role_id=role_id,
             employee_number=2,
         )
         db.add(user)
         db.commit()
+        print(f"{user.name} created")
 
 
 def seed():

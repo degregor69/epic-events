@@ -91,6 +91,22 @@ def sales_user(db, roles):
 
 
 @pytest.fixture
+def user_to_be_deleted(db, roles):
+    support_role = next(role for role in roles if role.name == "support")
+    user = User(
+        name="User to be deleted",
+        email="user_to_be_deleted@example.com",
+        hashed_password="MotDePasse123!",
+        employee_number=99999,
+        role_id=support_role.id,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@pytest.fixture
 def clients(db):
     client1 = Client(
         full_name="Client One",

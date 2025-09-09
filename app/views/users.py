@@ -1,9 +1,9 @@
 from getpass import getpass
 from app.config import get_db
-from app.controllers.users import login_user, create_user, update_user
+from app.controllers.users import login_user, create_user, update_user, delete_user
 from app.controllers.roles import get_all_roles
+from app.models import User
 from app.utils.io import ask
-from app.utils.permissions import is_management
 
 
 def login_view(db=None):
@@ -97,3 +97,21 @@ def update_user_view(current_user, db=None):
     updated_user = update_user(current_user, db, user_id, update_data)
     print(f"✅ User {updated_user.name} updated successfully")
     return updated_user
+
+
+def get_user_id_to_be_deleted(users: list[User]):
+    print("\nWhich user do you want to delete ?")
+    for i, user in enumerate(users, start=1):
+        print(f"{i}. {user.id} {user.email}")
+
+    row_number = input("Entrer the row number :")
+    return int(row_number)
+
+
+def delete_user_view(current_user, db=None):
+    db = db or next(get_db())
+    users = db.query(User).all()
+    row_number = get_user_id_to_be_deleted(users)
+    user_to_delete = users[int(row_number) - 1]
+    delete_user(current_user, db=db, user_id=user_to_delete.id)
+    print(f"User : {user_to_delete.id} | {user_to_delete.name} deleted")
