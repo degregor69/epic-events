@@ -4,6 +4,7 @@ from app.controllers.users import login_user, create_user, update_user, delete_u
 from app.controllers.roles import get_all_roles
 from app.models import User
 from app.utils.io import ask
+from app.utils.permissions import is_management
 
 
 def login_view(db=None):
@@ -43,6 +44,7 @@ def get_create_user_data(roles) -> dict:
     }
 
 
+@is_management
 def create_user_view(current_user, db=None):
     db = db or next(get_db())
     roles = get_all_roles(db)
@@ -108,6 +110,7 @@ def get_user_id_to_be_deleted(users: list[User]):
     return int(row_number)
 
 
+@is_management
 def delete_user_view(current_user, db=None):
     db = db or next(get_db())
     users = db.query(User).all()
