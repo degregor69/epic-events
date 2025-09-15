@@ -22,7 +22,7 @@ def seed_roles(db: SessionLocal):
     return roles
 
 
-def seed_clients(db: SessionLocal):
+def seed_clients(db: SessionLocal, user_id: int):
     client = db.query(Client).filter_by(email="client@test.com").first()
     if not client:
         client = Client(
@@ -30,7 +30,7 @@ def seed_clients(db: SessionLocal):
             email="client@test.com",
             phone="0123456789",
             company="TestCorp",
-            internal_contact="Michel Test",
+            internal_contact_id=user_id,
         )
         db.add(client)
         db.commit()
@@ -116,6 +116,8 @@ def seed_sales_user(db: SessionLocal, role_id: int):
         db.add(user)
         db.commit()
         print(f"{user.name} created")
+        db.refresh(user)
+        return user
 
 
 def seed_support_user(db: SessionLocal, role_id: int):
@@ -148,7 +150,7 @@ def seed():
     support_user = seed_support_user(db, support_role.id)
     sales_user = seed_sales_user(db, sales_role.id)
 
-    client = seed_clients(db)
+    client = seed_clients(db, sales_user.id)
     contract = seed_contracts(db, client.id, management_user.id)
     event = seed_events(db, client.id, contract.id)
     db.close()
