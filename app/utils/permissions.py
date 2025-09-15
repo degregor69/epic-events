@@ -15,7 +15,7 @@ def is_management(func):
 def is_sales(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        user = kwargs.get("user") or args[0]
+        user = kwargs.get("current_user") or args[0]
         if not user or user.role.name != "sales":
             raise Exception("Accès refusé (réservé aux Sales)")
         return func(*args, **kwargs)
@@ -26,7 +26,7 @@ def is_sales(func):
 def is_support(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        user = kwargs.get("user") or args[0]
+        user = kwargs.get("current_user") or args[0]
         if not user or user.role.name != "support":
             raise Exception("Accès refusé (réservé au Support)")
         return func(*args, **kwargs)
