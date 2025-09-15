@@ -1,12 +1,16 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.testing.pickleable import User
 
-from app.models import Contract
-from app.utils.permissions import is_management
+from app.models import Contract, Client
+from app.utils.permissions import is_management, is_management_or_responsible_sales
 
 
 def get_all_contracts(db: Session):
     return db.query(Contract).all()
+
+
+def get_all_contracts_for_clients_user(db: Session, user_id: int):
+    return db.query(Contract).join(Client).filter_by(internal_contact_id=user_id).all()
 
 
 @is_management
@@ -32,7 +36,7 @@ def create_contract(
     return contract
 
 
-@is_management
+@is_management_or_responsible_sales
 def update_contract(
     current_user: User,
     db: Session,

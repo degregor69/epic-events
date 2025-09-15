@@ -1,4 +1,8 @@
-from app.controllers.contracts import get_all_contracts, update_contract
+from app.controllers.contracts import (
+    get_all_contracts,
+    update_contract,
+    get_all_contracts_for_clients_user,
+)
 from app.config import get_db
 from app.utils.auth import is_authenticated
 
@@ -65,6 +69,11 @@ def create_contract_view(current_user):
 
 def update_contract_view(current_user):
     db = next(get_db())
+
+    if current_user.role.name == "management":
+        contracts = get_all_contracts(db)
+    else:
+        contracts = get_all_contracts_for_clients_user(db, current_user.id)
 
     contracts = get_all_contracts(db)
     if not contracts:

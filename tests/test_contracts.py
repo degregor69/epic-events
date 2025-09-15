@@ -77,3 +77,29 @@ def test_update_contract_with_non_authorized_user(
     with pytest.raises(Exception) as exc:
         update_contract(support_user)
         assert str(exc.value) == "Accès refusé (réservé au Management)"
+
+
+def test_sales_update_contract(db, sales_user, contracts, clients, management_user):
+    contract = contracts[0]
+    contract.client.internal_contact_id = sales_user.id
+    db.commit()
+
+    updated_contract = update_contract(
+        current_user=sales_user,
+        db=db,
+        contract_id=contract.id,
+        total_amount=8000,
+        pending_amount=3000,
+        signed=True,
+        user_id=management_user.id,
+        client_id=clients[1].id,
+    )
+
+    db_contract = db.get(Contract, contract.id)
+
+    assert db_contract.id == contract.id
+    assert db_contract.total_amount == 8000
+    assert db_contract.pending_amount == 3000
+    assert db_contract.signed is True
+    assert db_contract.user_id == management_user.id
+    assert db_contract.client_id == clients[1].id
