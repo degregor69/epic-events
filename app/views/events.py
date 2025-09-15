@@ -1,6 +1,6 @@
 from app.utils.auth import is_authenticated
 from app.utils.permissions import is_support
-from app.controllers.events import get_all_events
+from app.controllers.events import get_all_events, get_events_without_support
 from app.config import get_db
 
 
@@ -19,3 +19,19 @@ def list_all_events(callback=None):
 
     if callback:
         callback()
+
+
+def list_events_without_support_view(current_user):
+    db = next(get_db())
+    events = get_events_without_support(current_user=current_user, db=db)
+
+    if not events:
+        print("✅ All events have a support assigned.")
+        return
+
+    print("📅 Events without support:")
+    for e in events:
+        print(
+            f"Event #{e.id} | Contract #{e.contract_id} | Client #{e.client_id} | "
+            f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Location: {e.location or 'N/A'}"
+        )

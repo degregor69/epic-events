@@ -4,7 +4,7 @@ from app.views.contracts import (
     update_contract_view,
 )
 from app.views.clients import list_all_clients
-from app.views.events import list_all_events
+from app.views.events import list_all_events, list_events_without_support_view
 from app.views.users import create_user_view, update_user_view, delete_user_view
 
 common_menu = [
@@ -19,7 +19,8 @@ role_specific = {
         ("Modifier un utilisateur", update_user_view),
         ("Supprimer un utilisateur", delete_user_view),
         ("Créer un contrat", create_contract_view),
-        ("Modifier", update_contract_view),
+        ("Modifier un contrat", update_contract_view),
+        ("Voir les événements sans support", list_events_without_support_view),
     ],
     "sales": [
         ("Créer un client", lambda user: print("TODO: créer client")),
