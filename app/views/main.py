@@ -10,7 +10,6 @@ def main_view():
         show_menu(user)
 
 
-# app/views/menu.py
 from app.views.menu_config import common_menu, role_specific, logout_option
 
 
@@ -36,4 +35,5 @@ def show_menu(user):
             action(user)
 
         except (ValueError, IndexError):
+            print(ValueError)
             print("⚠ Option invalide")

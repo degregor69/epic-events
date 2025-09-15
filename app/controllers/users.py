@@ -61,3 +61,7 @@ def login_user(db: Session, email: str, password: str):
 
     save_tokens({"access_token": access_token, "refresh_token": refresh_token})
     return True, "Login successful", user
+
+
+def get_all_users(db: Session):
+    return db.query(User).all()

@@ -1,4 +1,4 @@
-from app.views.contracts import list_all_contracts
+from app.views.contracts import list_all_contracts, create_contract_view
 from app.views.clients import list_all_clients
 from app.views.events import list_all_events
 from app.views.users import create_user_view, update_user_view, delete_user_view
@@ -14,6 +14,7 @@ role_specific = {
         ("Créer un utilisateur", create_user_view),
         ("Modifier un utilisateur", update_user_view),
         ("Supprimer un utilisateur", delete_user_view),
+        ("Créer un contrat", create_contract_view),
     ],
     "sales": [
         ("Créer un client", lambda user: print("TODO: créer client")),
