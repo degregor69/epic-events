@@ -1,9 +1,12 @@
+from datetime import datetime
+
 import pytest
 
 from app.controllers.events import (
     get_all_events,
     get_events_without_support,
     update_event,
+    create_event,
 )
 from app.models import Event
 
@@ -90,3 +93,39 @@ def test_update_event_with_non_authorized_user(db, support_user, events, clients
             client_id=clients[1].id,
         )
         assert str(exc.value) == "Accès refusé (réservé au Management)"
+
+
+def test_create_event(db, sales_user, clients, contracts):
+    client = clients[0]
+    client.internal_contact_id = sales_user.id
+    db.commit()
+
+    contract = contracts[0]
+    contract.client_id = client.id
+    contract.signed = True
+    db.commit()
+
+    event = create_event(
+        current_user=sales_user,
+        db=db,
+        contract_id=contract.id,
+        client_id=client.id,
+        start_date=datetime(2025, 1, 1, 10, 0),
+        end_date=datetime(2025, 1, 1, 12, 0),
+        support_contact="John Doe",
+        location="Paris",
+        attendees=50,
+        notes="Kickoff meeting",
+    )
+    assert event is not None
+    assert event.contract_id == contract.id
+    assert event.client_id == client.id
+    assert event.start_date == datetime(2025, 1, 1, 10, 0)
+    assert event.end_date == datetime(2025, 1, 1, 12, 0)
+    assert event.support_contact == "John Doe"
+    assert event.location == "Paris"
+    assert event.attendees == 50
+    assert event.notes == "Kickoff meeting"
+
+    db_event = db.get(Event, event.id)
+    assert db_event is not None

@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from sqlalchemy import DateTime
 from sqlalchemy.orm import Session
 from app.models import Event, User
-from app.utils.permissions import is_management
+from app.utils.permissions import is_management, is_sales
 
 
 def get_all_events(db: Session):
@@ -48,6 +50,35 @@ def update_event(
     if client_id is not None:
         event.client_id = client_id
 
+    db.commit()
+    db.refresh(event)
+    return event
+
+
+@is_sales
+def create_event(
+    current_user: User,
+    db: Session,
+    contract_id: int,
+    client_id: int,
+    start_date: datetime,
+    end_date: datetime = None,
+    support_contact: str = None,
+    location: str = None,
+    attendees: int = None,
+    notes: str = None,
+):
+    event = Event(
+        contract_id=contract_id,
+        client_id=client_id,
+        start_date=start_date,
+        end_date=end_date,
+        support_contact=support_contact,
+        location=location,
+        attendees=attendees,
+        notes=notes,
+    )
+    db.add(event)
     db.commit()
     db.refresh(event)
     return event

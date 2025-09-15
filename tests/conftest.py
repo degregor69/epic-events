@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 import pytest
 from app.config import Base, engine, SessionLocal
-from app.controllers.users import create_user
 from app.models import Event, Client, Contract, Role, User
 
 
@@ -25,7 +24,7 @@ def db():
         print("Session closed")
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def roles(db):
     role_names = ["management", "sales", "support"]
     roles = []
@@ -42,7 +41,7 @@ def roles(db):
     return roles
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def support_user(db, roles):
     support_role = next(role for role in roles if role.name == "support")
     user = User(
@@ -58,7 +57,7 @@ def support_user(db, roles):
     return user
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def management_user(db, roles):
     management_role = next(role for role in roles if role.name == "management")
     user = User(
@@ -74,7 +73,7 @@ def management_user(db, roles):
     return user
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sales_user(db, roles):
     sales_role = next(role for role in roles if role.name == "sales")
     user = User(
@@ -90,7 +89,7 @@ def sales_user(db, roles):
     return user
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def user_to_be_deleted(db, roles):
     support_role = next(role for role in roles if role.name == "support")
     user = User(
@@ -106,7 +105,7 @@ def user_to_be_deleted(db, roles):
     return user
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def clients(db, sales_user):
     client1 = Client(
         full_name="Client One",
@@ -129,7 +128,7 @@ def clients(db, sales_user):
     return [client1, client2]
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def contracts(db, sales_user, clients):
     contract1 = Contract(
         client_id=clients[0].id,
@@ -152,7 +151,7 @@ def contracts(db, sales_user, clients):
     return [contract1, contract2]
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def events(db, sales_user, contracts, clients):
     now = datetime.now()
     event1 = Event(

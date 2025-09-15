@@ -9,6 +9,7 @@ from app.views.events import (
     list_all_events,
     list_events_without_support_view,
     update_event_view,
+    create_event_view,
 )
 from app.views.users import create_user_view, update_user_view, delete_user_view
 
@@ -33,6 +34,7 @@ role_specific = {
         ("Modifier un client", update_client_view),
         ("Modifier un contrat", update_contract_view),
         ("Voir mes contrats", list_contracts_filtered_view),
+        ("Créer un événement", create_event_view),
     ],
     "support": [
         ("Voir mes événements", lambda user: print("TODO: événements support"))
