@@ -1,6 +1,10 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
+
+from sqlalchemy.orm import relationship
+
 from app.config import Base
+
 
 class Client(Base):
     __tablename__ = "clients"
@@ -13,3 +17,5 @@ class Client(Base):
     created_at = Column(DateTime, default=datetime.now())
     updated_at = Column(DateTime, default=datetime.now(), onupdate=datetime.now())
     internal_contact = Column(String, nullable=False)
+
+    contracts = relationship("Contract", back_populates="client")

@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, Float, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import Relationship, relationship
+
 from app.config import Base
 from datetime import datetime
 
@@ -17,3 +19,6 @@ class Contract(Base):
 
     client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    client = relationship("Client", back_populates="contracts")
+    user = relationship("User", back_populates="contracts")

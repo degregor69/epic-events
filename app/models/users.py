@@ -1,5 +1,4 @@
-import enum
-from sqlalchemy import Column, Integer, String, Enum, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.config import Base
@@ -19,3 +18,5 @@ class User(Base):
 
     role_id = Column(Integer, ForeignKey("roles.id"))
     role = relationship("Role", back_populates="users")
+
+    contracts = relationship("Contract", back_populates="user")
