@@ -1,6 +1,12 @@
+from datetime import datetime
+
+from app.models import Event
 from app.utils.auth import is_authenticated
-from app.utils.permissions import is_support
-from app.controllers.events import get_all_events, get_events_without_support
+from app.controllers.events import (
+    get_all_events,
+    get_events_without_support,
+    update_event,
+)
 from app.config import get_db
 
 
@@ -35,3 +41,67 @@ def list_events_without_support_view(current_user):
             f"Event #{e.id} | Contract #{e.contract_id} | Client #{e.client_id} | "
             f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Location: {e.location or 'N/A'}"
         )
+
+
+def update_event_view(current_user):
+    db = next(get_db())
+
+    events = db.query(Event).all()
+    if not events:
+        print("❌ No events found.")
+        return
+
+    print("Available events:")
+    for i, e in enumerate(events, start=1):
+        print(
+            f"{i}. Event #{e.id} | Contract #{e.contract_id} | Client #{e.client_id} | "
+            f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Support: {e.support_contact or 'N/A'} | Location: {e.location or 'N/A'}"
+        )
+
+    choice = int(input("Choose event (number): ")) - 1
+    event = events[choice]
+
+    print("\nEnter new values (leave blank to keep current):")
+    start_input = input(f"Start date [{event.start_date.strftime('%Y-%m-%d %H:%M')}]: ")
+    end_input = input(
+        f"End date [{event.end_date.strftime('%Y-%m-%d %H:%M') if event.end_date else ''}]: "
+    )
+
+    start_date = (
+        datetime.strptime(start_input, "%Y-%m-%d %H:%M") if start_input else None
+    )
+    end_date = datetime.strptime(end_input, "%Y-%m-%d %H:%M") if end_input else None
+
+    support_contact = (
+        input(f"Support contact [{event.support_contact or ''}]: ") or None
+    )
+    location = input(f"Location [{event.location or ''}]: ") or None
+    attendees_input = input(f"Attendees [{event.attendees or ''}]: ")
+    attendees = int(attendees_input) if attendees_input else None
+    notes = input(f"Notes [{event.notes or ''}]: ") or None
+
+    contract_input = input(f"Contract ID [{event.contract_id}]: ")
+    contract_id = int(contract_input) if contract_input else None
+    client_input = input(f"Client ID [{event.client_id}]: ")
+    client_id = int(client_input) if client_input else None
+
+    updated_event = update_event(
+        current_user=current_user,
+        db=db,
+        event_id=event.id,
+        start_date=start_date,
+        end_date=end_date,
+        support_contact=support_contact,
+        location=location,
+        attendees=attendees,
+        notes=notes,
+        contract_id=contract_id,
+        client_id=client_id,
+    )
+
+    print("\n✅ Event updated successfully!")
+    print(
+        f"Event #{updated_event.id} | Contract #{updated_event.contract_id} | Client #{updated_event.client_id} | "
+        f"Start: {updated_event.start_date} | End: {updated_event.end_date or 'N/A'} | "
+        f"Support: {updated_event.support_contact or 'N/A'} | Location: {updated_event.location or 'N/A'} | Attendees: {updated_event.attendees or 'N/A'}"
+    )
