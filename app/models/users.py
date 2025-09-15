@@ -19,4 +19,5 @@ class User(Base):
     role_id = Column(Integer, ForeignKey("roles.id"))
     role = relationship("Role", back_populates="users")
 
+    clients = relationship("Client", back_populates="internal_contact")
     contracts = relationship("Contract", back_populates="user")

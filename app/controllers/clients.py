@@ -22,7 +22,7 @@ def create_client(
         email=email,
         phone=phone,
         company=company,
-        internal_contact=current_user.name,
+        internal_contact_id=current_user.id,
     )
     db.add(client)
     db.commit()

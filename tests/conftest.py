@@ -107,20 +107,20 @@ def user_to_be_deleted(db, roles):
 
 
 @pytest.fixture
-def clients(db):
+def clients(db, sales_user):
     client1 = Client(
         full_name="Client One",
         email="client1@example.com",
         phone="1234567890",
         company="Company A",
-        internal_contact="Alice",
+        internal_contact_id=sales_user.id,
     )
     client2 = Client(
         full_name="Client Two",
         email="client2@example.com",
         phone="0987654321",
         company="Company B",
-        internal_contact="Bob",
+        internal_contact_id=sales_user.id,
     )
     db.add_all([client1, client2])
     db.commit()

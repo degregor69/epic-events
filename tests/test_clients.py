@@ -29,7 +29,7 @@ def test_create_client(db, sales_user):
     assert db_client.email == client_data["email"]
     assert db_client.phone == client_data["phone"]
     assert db_client.company == client_data["company"]
-    assert db_client.internal_contact == sales_user.name
+    assert db_client.internal_contact_id == sales_user.id
 
 
 def test_create_client_with_non_authorized_user(
