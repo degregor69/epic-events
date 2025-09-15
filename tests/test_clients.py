@@ -1,6 +1,6 @@
 import pytest
 
-from app.controllers.clients import get_all_clients, create_client
+from app.controllers.clients import get_all_clients, create_client, update_client
 from app.models import Client
 
 
@@ -38,3 +38,50 @@ def test_create_client_with_non_authorized_user(
     with pytest.raises(Exception) as exc:
         create_client(support_user)
         assert str(exc.value) == "Accès refusé (réservé aux Sales )"
+
+
+def test_update_client(db, sales_user, support_user, clients):
+    client = clients[0]
+    client.internal_contact_id = sales_user.id
+    db.commit()
+
+    updated_client = update_client(
+        current_user=sales_user,
+        db=db,
+        client_id=client.id,
+        full_name="Alice Updated",
+        email="alice.updated@example.com",
+        phone="0987654321",
+        company="Updated Corp",
+        internal_contact_id=support_user.id,
+    )
+
+    assert updated_client is not None
+
+    db_client: Client = db.get(Client, client.id)
+
+    assert db_client.id == client.id
+    assert db_client.full_name == "Alice Updated"
+    assert db_client.email == "alice.updated@example.com"
+    assert db_client.phone == "0987654321"
+    assert db_client.company == "Updated Corp"
+    assert db_client.internal_contact_id == support_user.id
+
+
+def test_update_client_with_non_sales_user(db, sales_user, support_user, clients):
+    client = clients[0]
+    client.internal_contact_id = sales_user.id
+    db.commit()
+
+    with pytest.raises(Exception) as exc:
+        updated_client = update_client(
+            current_user=support_user,
+            db=db,
+            client_id=client.id,
+            full_name="Alice Updated",
+            email="alice.updated@example.com",
+            phone="0987654321",
+            company="Updated Corp",
+            internal_contact_id=support_user.id,
+        )
+        assert str(exc.value) == f"❌ Client with id {client.id} not found"
