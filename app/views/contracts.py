@@ -2,6 +2,7 @@ from app.controllers.contracts import (
     get_all_contracts,
     update_contract,
     get_all_contracts_for_clients_user,
+    get_contracts_filtered,
 )
 from app.config import get_db
 from app.utils.auth import is_authenticated
@@ -146,3 +147,33 @@ def update_contract_view(current_user):
         f"Total: {updated_contract.total_amount} | Pending: {updated_contract.pending_amount} | "
         f"Signed: {'✅' if updated_contract.signed else '❌'}"
     )
+
+
+def list_contracts_filtered_view(current_user):
+    db = next(get_db())
+
+    print("Filter contracts:")
+    only_unsigned = input("Show only unsigned contracts? (y/N): ").lower() == "y"
+    only_pending = (
+        input("Show only contracts with pending amount? (y/N): ").lower() == "y"
+    )
+
+    contracts = get_contracts_filtered(
+        current_user=current_user,
+        db=db,
+        only_unsigned=only_unsigned,
+        only_pending=only_pending,
+    )
+
+    if not contracts:
+        print("✅ No contracts found with the selected filters.")
+        return
+
+    print("\nFiltered contracts:")
+    for c in contracts:
+        client_name = c.client.full_name if c.client else "N/A"
+        user_name = c.user.name if c.user else "N/A"
+        print(
+            f"Contract #{c.id} | Client: {client_name} | Assigned to: {user_name} | "
+            f"Total: {c.total_amount} | Pending: {c.pending_amount} | Signed: {'✅' if c.signed else '❌'}"
+        )

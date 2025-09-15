@@ -1,8 +1,8 @@
-from app.controllers.clients import create_client
 from app.views.contracts import (
     list_all_contracts,
     create_contract_view,
     update_contract_view,
+    list_contracts_filtered_view,
 )
 from app.views.clients import list_all_clients, create_client_view, update_client_view
 from app.views.events import (
@@ -32,6 +32,7 @@ role_specific = {
         ("Créer un client", create_client_view),
         ("Modifier un client", update_client_view),
         ("Modifier un contrat", update_contract_view),
+        ("Voir mes contrats", list_contracts_filtered_view),
     ],
     "support": [
         ("Voir mes événements", lambda user: print("TODO: événements support"))

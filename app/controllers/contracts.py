@@ -2,7 +2,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.testing.pickleable import User
 
 from app.models import Contract, Client
-from app.utils.permissions import is_management, is_management_or_responsible_sales
+from app.utils.permissions import (
+    is_management,
+    is_management_or_responsible_sales,
+    is_sales,
+)
 
 
 def get_all_contracts(db: Session):
@@ -65,3 +69,23 @@ def update_contract(
     db.commit()
     db.refresh(contract)
     return contract
+
+
+@is_sales
+def get_contracts_filtered(
+    current_user: User,
+    db: Session,
+    only_unsigned: bool = False,
+    only_pending: bool = False,
+):
+    query = (
+        db.query(Contract).join(Client).filter_by(internal_contact_id=current_user.id)
+    )
+
+    if only_unsigned:
+        query = query.filter_by(signed=False)
+
+    if only_pending:
+        query = query.filter(Contract.pending_amount > 0)
+
+    return query.all()
