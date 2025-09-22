@@ -38,21 +38,29 @@ def is_support(func):
 
 def is_management_or_responsible_sales(func):
     @wraps(func)
-    def wrapper(*args, **kwargs):
-        current_user = kwargs.get("current_user") or args[0]
-        contract_id = kwargs.get("contract_id") or args[1]
-        contract = (
-            kwargs.get("db").query(Contract).filter(Contract.id == contract_id).first()
-        )
+    def wrapper(self, *args, **kwargs):
+        current_user = kwargs.get("current_user") or (args[0] if args else None)
+        contract_id = kwargs.get("contract_id") or (args[1] if len(args) > 1 else None)
+
+        if not current_user or contract_id is None:
+            raise Exception("Missing required arguments")
+
+        db = getattr(self.contract_db, "db", None)
+        if db is None:
+            raise Exception("DB session not found in the service")
+
+        contract = db.query(Contract).filter(Contract.id == contract_id).first()
+        if not contract:
+            raise Exception("Contract not found")
 
         if current_user.role.name == "management":
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
 
         if (
             current_user.role.name == "sales"
             and contract.client.internal_contact_id == current_user.id
         ):
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
 
         raise Exception("❌ Access denied")
 
