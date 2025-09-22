@@ -1,11 +1,12 @@
 import pytest
 
-from app.services.clients import get_all_clients, create_client, update_client
+from app.services.clients import ClientService
 from app.models import Client
 
 
 def test_get_all_clients(db, clients):
-    db_clients = get_all_clients(db)
+    clients_service = ClientService(db=db)
+    db_clients = clients_service.get_all_clients()
 
     assert len(db_clients) == len(clients)
 
@@ -18,7 +19,10 @@ def test_create_client(db, sales_user):
         "company": "ACME Corp",
     }
 
-    created_client = create_client(current_user=sales_user, db=db, **client_data)
+    clients_service = ClientService(db=db)
+    created_client = clients_service.create_client(
+        current_user=sales_user, **client_data
+    )
 
     assert created_client is not None
 
@@ -35,8 +39,9 @@ def test_create_client(db, sales_user):
 def test_create_client_with_non_authorized_user(
     db, support_user, management_user, contracts, clients
 ):
+    clients_service = ClientService(db=db)
     with pytest.raises(Exception) as exc:
-        create_client(support_user)
+        clients_service.create_client(support_user)
         assert str(exc.value) == "Accès refusé (réservé aux Sales )"
 
 
@@ -44,10 +49,10 @@ def test_update_client(db, sales_user, support_user, clients):
     client = clients[0]
     client.internal_contact_id = sales_user.id
     db.commit()
+    clients_service = ClientService(db=db)
 
-    updated_client = update_client(
+    updated_client = clients_service.update_client(
         current_user=sales_user,
-        db=db,
         client_id=client.id,
         full_name="Alice Updated",
         email="alice.updated@example.com",
@@ -72,11 +77,11 @@ def test_update_client_with_non_sales_user(db, sales_user, support_user, clients
     client = clients[0]
     client.internal_contact_id = sales_user.id
     db.commit()
+    clients_service = ClientService(db=db)
 
     with pytest.raises(Exception) as exc:
-        updated_client = update_client(
+        updated_client = clients_service.update_client(
             current_user=support_user,
-            db=db,
             client_id=client.id,
             full_name="Alice Updated",
             email="alice.updated@example.com",

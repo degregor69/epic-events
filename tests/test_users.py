@@ -1,6 +1,6 @@
 import pytest
 from faker import Faker
-from app.services.users import create_user
+from app.services.users import UserService
 from app.models import User
 from app.utils.auth import is_authenticated
 from app.utils.security import (
@@ -53,7 +53,8 @@ def test_authentication_flow(db, support_user):
 def test_create_user(db, roles, management_user):
     selected_role = roles[1]
     password = fake.pystr(min_chars=12, max_chars=12)
-    user = create_user(
+    user_service = UserService(db=db)
+    user = user_service.create_user(
         current_user=management_user,
         db=db,
         name="Test User",
