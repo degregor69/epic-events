@@ -1,6 +1,6 @@
 from app.models import User, Client
 from app.utils.auth import is_authenticated
-from app.controllers.clients import (
+from app.services.clients import (
     get_all_clients,
     create_client,
     update_client,

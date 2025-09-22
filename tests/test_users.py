@@ -1,6 +1,6 @@
 import pytest
 from faker import Faker
-from app.controllers.users import create_user
+from app.services.users import create_user
 from app.models import User
 from app.utils.auth import is_authenticated
 from app.utils.security import (

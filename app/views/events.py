@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Event, Client, Contract, User
 from app.utils.auth import is_authenticated
-from app.controllers.events import (
+from app.services.events import (
     get_all_events,
     get_events_without_support,
     update_event,
@@ -26,6 +26,7 @@ def list_all_events(callback=None):
             f"Start date :  {e.start_date} |  End date :  {e.end_date} | Location : {e.location} | Support ID: {e.support_contact}"
         )
 
+    # TODO remove callback
     if callback:
         callback()
 
@@ -124,6 +125,7 @@ def get_clients_with_signed_contracts(db: Session, user_id: int):
 def create_event_view(current_user: User):
     db = next(get_db())
 
+    # TODO send data instead of getting it
     clients = get_clients_with_signed_contracts(db=db, user_id=current_user.id)
     if not clients:
         print(f"❌ No clients with signed contracts for the user {current_user.name}.")

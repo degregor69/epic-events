@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from app.config import Base, engine, SessionLocal
-from app.controllers.users import create_user
 from app.models import User, Client, Contract, Event
 from app.models.roles import Role
 from app.utils.security import hash_password

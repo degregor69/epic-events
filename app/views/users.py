@@ -1,7 +1,7 @@
 from getpass import getpass
 from app.config import get_db
-from app.controllers.users import login_user, create_user, update_user, delete_user
-from app.controllers.roles import get_all_roles
+from app.services.users import login_user, create_user, update_user, delete_user
+from app.services.roles import get_all_roles
 from app.models import User
 from app.utils.io import ask
 from app.utils.permissions import is_management

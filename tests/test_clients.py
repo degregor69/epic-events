@@ -1,6 +1,6 @@
 import pytest
 
-from app.controllers.clients import get_all_clients, create_client, update_client
+from app.services.clients import get_all_clients, create_client, update_client
 from app.models import Client
 
 

@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from app.controllers.events import (
+from app.services.events import (
     get_all_events,
     get_events_without_support,
     update_event,

@@ -1,6 +1,6 @@
 import pytest
 
-from app.controllers.contracts import (
+from app.services.contracts import (
     get_all_contracts,
     create_contract,
     update_contract,

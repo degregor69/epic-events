@@ -1,4 +1,4 @@
-from app.controllers.contracts import (
+from app.services.contracts import (
     get_all_contracts,
     update_contract,
     get_all_contracts_for_clients_user,
@@ -25,9 +25,9 @@ def list_all_contracts():
 
 
 from app.config import get_db
-from app.controllers.contracts import create_contract
-from app.controllers.users import get_all_users
-from app.controllers.clients import get_all_clients
+from app.services.contracts import create_contract
+from app.services.users import get_all_users
+from app.services.clients import get_all_clients
 
 
 def create_contract_view(current_user):
