@@ -56,7 +56,6 @@ def test_create_user(db, roles, management_user):
     user_service = UserService(db=db)
     user = user_service.create_user(
         current_user=management_user,
-        db=db,
         name="Test User",
         email="test_user@test.com",
         password=password,
@@ -80,9 +79,8 @@ def test_create_user_view_success(db, management_user):
             "password": "password123",
         }
 
-        user = create_user_view(management_user, db=db)
+        user = create_user_view(management_user, db)
 
-    db.refresh(user)
     assert user.name == "John Doe"
     assert user.email == "john@example.com"
     assert user.employee_number == 42
@@ -90,6 +88,9 @@ def test_create_user_view_success(db, management_user):
 
 
 def test_update_user_view_success(db, support_user, roles, management_user):
+    from unittest.mock import patch
+    from app.views.users import update_user_view
+
     with patch("app.views.users.get_update_user_data") as mock_get_update_user_data:
         mock_get_update_user_data.return_value = {
             "user_id": support_user.id,
@@ -98,8 +99,7 @@ def test_update_user_view_success(db, support_user, roles, management_user):
             "employee_number": 999,
             "role_id": roles[0].id,
         }
-
-        updated_user = update_user_view(management_user, db=db)
+        updated_user = update_user_view(current_user=management_user, db=db)
 
     db.refresh(support_user)
     assert support_user.name == "New name"
@@ -113,7 +113,16 @@ def test_create_user_view_permission_denied(
     db,
 ):
     with pytest.raises(Exception) as exc:
-        create_user_view(support_user)
+        with patch("app.views.users.get_create_user_data") as mock_get_create_user_data:
+            mock_get_create_user_data.return_value = {
+                "name": "John Doe",
+                "email": "john@example.com",
+                "employee_number": 42,
+                "role_id": 1,
+                "password": "password123",
+            }
+
+        create_user_view(support_user, db=db)
         assert str(exc.value) == "Accès refusé (réservé au Management)"
 
 
@@ -122,7 +131,7 @@ def test_delete_user(management_user, db, user_to_be_deleted):
         "app.views.users.get_user_id_to_be_deleted"
     ) as mock_get_user_id_to_be_deleted:
         mock_get_user_id_to_be_deleted.return_value = user_to_be_deleted.id
-        delete_user_view(management_user, db=db)
+        delete_user_view(management_user, db)
 
         deleted_user = db.get(User, user_to_be_deleted.id)
         assert deleted_user is None

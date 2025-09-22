@@ -1,7 +1,7 @@
 from getpass import getpass
 from app.config import get_db
-from app.services.users import login_user, create_user, update_user, delete_user
-from app.services.roles import get_all_roles
+from app.services.users import UserService
+from app.services.roles import RoleService
 from app.models import User
 from app.utils.io import ask
 from app.utils.permissions import is_management
@@ -11,7 +11,8 @@ def login_view(db=None):
     db = db or next(get_db())
     email = input("Email: ")
     password = getpass("Password: ")
-    success, message, user = login_user(db, email, password)
+    users_service = UserService(db=db)
+    success, message, user = users_service.login_user(db, email, password)
     if not success and not user:
         print(f"❌ {message}")
         return login_view(db=db)
@@ -44,14 +45,15 @@ def get_create_user_data(roles) -> dict:
     }
 
 
-@is_management
 def create_user_view(current_user, db=None):
+
     db = db or next(get_db())
-    roles = get_all_roles(db)
+    roles_service = RoleService(db=db)
+    roles = roles_service.get_all_roles()
     data = get_create_user_data(roles)
-    return create_user(
+    users_service = UserService(db=db)
+    return users_service.create_user(
         current_user,
-        db,
         name=data["name"],
         email=data["email"],
         password=data["password"],
@@ -91,12 +93,14 @@ def get_update_user_data(roles) -> dict:
 
 def update_user_view(current_user, db=None):
     db = db or next(get_db())
-    roles = get_all_roles(db)
+    roles_service = RoleService(db)
+    roles = roles_service.get_all_roles()
 
     update_data = get_update_user_data(roles)
     user_id = update_data.pop("user_id")
 
-    updated_user = update_user(current_user, db, user_id, update_data)
+    users_service = UserService(db=db)
+    updated_user = users_service.update_user(current_user, user_id, update_data)
     print(f"✅ User {updated_user.name} updated successfully")
     return updated_user
 
@@ -110,11 +114,11 @@ def get_user_id_to_be_deleted(users: list[User]):
     return int(row_number)
 
 
-@is_management
 def delete_user_view(current_user, db=None):
     db = db or next(get_db())
     users = db.query(User).all()
     row_number = get_user_id_to_be_deleted(users)
     user_to_delete = users[int(row_number) - 1]
-    delete_user(current_user, db=db, user_id=user_to_delete.id)
+    users_service = UserService(db=db)
+    users_service.delete_user(current_user, user_id=user_to_delete.id)
     print(f"User : {user_to_delete.id} | {user_to_delete.name} deleted")

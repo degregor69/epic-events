@@ -6,9 +6,17 @@ from app.models import Contract
 def is_management(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        user = kwargs.get("current_user") or args[0]
-        if not user or user.role.name != "management":
-            raise Exception("Accès refusé (réservé au Management)")
+        print(args)
+        print(kwargs)
+        current_user = kwargs.get("current_user") or (args[1] if args else None)
+
+        print("🔹 current_user:", current_user)
+        if not current_user:
+            raise Exception("current_user argument missing")
+
+        if current_user.role.name != "management":
+            raise Exception("❌ Access denied")
+
         return func(*args, **kwargs)
 
     return wrapper

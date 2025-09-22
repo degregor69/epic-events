@@ -2,17 +2,13 @@ from datetime import datetime
 
 import pytest
 
-from app.services.events import (
-    get_all_events,
-    get_events_without_support,
-    update_event,
-    create_event,
-)
+from app.services.events import EventService
 from app.models import Event
 
 
 def test_get_all_events(db, events):
-    db_events = get_all_events(db)
+    events_service = EventService(db=db)
+    db_events = events_service.get_all_events()
 
     assert len(db_events) == len(events)
 
@@ -22,7 +18,10 @@ def test_get_events_without_support(db, management_user, events):
     events[1].support_contact = "John Doe"
     db.commit()
 
-    result = get_events_without_support(current_user=management_user, db=db)
+    events_service = EventService(db=db)
+    result = events_service.get_events_without_support(
+        current_user=management_user,
+    )
 
     assert result is not None
     assert all(e.support_contact is None for e in result)
@@ -36,16 +35,19 @@ def test_get_events_without_support_with_non_authorized_user(db, support_user, e
     db.commit()
 
     with pytest.raises(Exception) as exc:
-        result = get_events_without_support(current_user=support_user, db=db)
+        events_service = EventService(db=db)
+        result = events_service.get_events_without_support(
+            current_user=support_user,
+        )
         assert str(exc.value) == "Accès refusé (réservé au Management)"
 
 
 def test_update_event(db, management_user, events, clients):
     event = events[0]
+    events_service = EventService(db=db)
 
-    updated_event = update_event(
+    updated_event = events_service.update_event(
         current_user=management_user,
-        db=db,
         event_id=event.id,
         start_date=event.start_date.replace(hour=14, minute=0),
         end_date=event.end_date.replace(hour=16, minute=0) if event.end_date else None,
@@ -76,10 +78,9 @@ def test_update_event(db, management_user, events, clients):
 def test_update_event_with_non_authorized_user(db, support_user, events, clients):
     with pytest.raises(Exception) as exc:
         event = events[0]
-
-        updated_event = update_event(
+        events_service = EventService(db=db)
+        updated_event = events_service.update_event(
             current_user=support_user,
-            db=db,
             event_id=event.id,
             start_date=event.start_date.replace(hour=14, minute=0),
             end_date=(
@@ -105,9 +106,9 @@ def test_create_event(db, sales_user, clients, contracts):
     contract.signed = True
     db.commit()
 
-    event = create_event(
+    events_service = EventService(db=db)
+    event = events_service.create_event(
         current_user=sales_user,
-        db=db,
         contract_id=contract.id,
         client_id=client.id,
         start_date=datetime(2025, 1, 1, 10, 0),
