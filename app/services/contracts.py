@@ -1,91 +1,73 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.testing.pickleable import User
-
-from app.models import Contract, Client
+from app.models import Contract, User
 from app.utils.permissions import (
     is_management,
     is_management_or_responsible_sales,
     is_sales,
 )
+from app.databases.contracts import ContractDB
 
 
-def get_all_contracts(db: Session):
-    return db.query(Contract).all()
+class ContractService:
+    def __init__(self, db: Session):
+        self.contract_db = ContractDB(db)
 
+    def get_all_contracts(self):
+        return self.contract_db.get_all()
 
-def get_all_contracts_for_clients_user(db: Session, user_id: int):
-    return db.query(Contract).join(Client).filter_by(internal_contact_id=user_id).all()
+    def get_all_contracts_for_clients_user(self, user_id: int):
+        return self.contract_db.get_all_for_clients_user(user_id)
 
+    @is_management
+    def create_contract(
+        self,
+        current_user: User,
+        user_id: int,
+        client_id: int,
+        total_amount: float,
+        pending_amount: float,
+        signed: bool = False,
+    ):
+        contract = Contract(
+            client_id=client_id,
+            user_id=user_id,
+            total_amount=total_amount,
+            pending_amount=pending_amount,
+            signed=signed,
+        )
+        return self.contract_db.add(contract)
 
-@is_management
-def create_contract(
-    current_user: User,
-    db: Session,
-    user_id: int,
-    client_id: int,
-    total_amount: float,
-    pending_amount: float,
-    signed: bool = False,
-):
-    contract = Contract(
-        client_id=client_id,
-        user_id=user_id,
-        total_amount=total_amount,
-        pending_amount=pending_amount,
-        signed=signed,
-    )
-    db.add(contract)
-    db.commit()
-    db.refresh(contract)
-    return contract
+    @is_management_or_responsible_sales
+    def update_contract(
+        self,
+        current_user: User,
+        contract_id: int,
+        total_amount: float = None,
+        pending_amount: float = None,
+        signed: bool = None,
+        user_id: int = None,
+        client_id: int = None,
+    ):
+        contract = self.contract_db.get_by_id(contract_id)
+        if not contract:
+            raise Exception(f"❌ Contract with id {contract_id} not found")
 
+        data = {
+            "total_amount": total_amount,
+            "pending_amount": pending_amount,
+            "signed": signed,
+            "user_id": user_id,
+            "client_id": client_id,
+        }
+        return self.contract_db.update(contract, data)
 
-@is_management_or_responsible_sales
-def update_contract(
-    current_user: User,
-    db: Session,
-    contract_id: int,
-    total_amount: float = None,
-    pending_amount: float = None,
-    signed: bool = None,
-    user_id: int = None,
-    client_id: int = None,
-):
-    contract = db.query(Contract).filter_by(id=contract_id).first()
-    if not contract:
-        raise Exception(f"❌ Contract with id {contract_id} not found")
-
-    if total_amount is not None:
-        contract.total_amount = total_amount
-    if pending_amount is not None:
-        contract.pending_amount = pending_amount
-    if signed is not None:
-        contract.signed = signed
-    if user_id is not None:
-        contract.user_id = user_id
-    if client_id is not None:
-        contract.client_id = client_id
-
-    db.commit()
-    db.refresh(contract)
-    return contract
-
-
-@is_sales
-def get_contracts_filtered(
-    current_user: User,
-    db: Session,
-    only_unsigned: bool = False,
-    only_pending: bool = False,
-):
-    query = (
-        db.query(Contract).join(Client).filter_by(internal_contact_id=current_user.id)
-    )
-
-    if only_unsigned:
-        query = query.filter_by(signed=False)
-
-    if only_pending:
-        query = query.filter(Contract.pending_amount > 0)
-
-    return query.all()
+    @is_sales
+    def get_contracts_filtered(
+        self,
+        current_user: User,
+        only_unsigned: bool = False,
+        only_pending: bool = False,
+    ):
+        return self.contract_db.get_filtered_by_user(
+            current_user.id, only_unsigned, only_pending
+        )
