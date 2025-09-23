@@ -10,7 +10,7 @@ class EventDB:
         return self.db.query(Event).all()
 
     def get_without_support(self):
-        return self.db.query(Event).filter(Event.support_contact.is_(None)).all()
+        return self.db.query(Event).filter(Event.user_id.is_(None)).all()
 
     def get_by_id(self, event_id: int):
         return self.db.query(Event).filter(Event.id == event_id).first()

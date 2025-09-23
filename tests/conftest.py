@@ -152,14 +152,14 @@ def contracts(db, sales_user, clients):
 
 
 @pytest.fixture(scope="function")
-def events(db, sales_user, contracts, clients):
+def events(db, sales_user, contracts, clients, support_user):
     now = datetime.now()
     event1 = Event(
         client_id=clients[0].id,
         contract_id=contracts[0].id,
+        user_id=support_user.id,
         start_date=now,
         end_date=now + timedelta(hours=2),
-        support_contact="Alice",
         location="Brasil",
         attendees=50,
         notes="Need to pay second half of the bill",
@@ -167,9 +167,9 @@ def events(db, sales_user, contracts, clients):
     event2 = Event(
         client_id=clients[0].id,
         contract_id=contracts[0].id,
+        user_id=support_user.id,
         start_date=now,
         end_date=now + timedelta(hours=2),
-        support_contact="Alice",
         location="Montenegro",
         attendees=25,
         notes="Vegetarian event",

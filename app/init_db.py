@@ -60,7 +60,7 @@ def seed_contracts(db: SessionLocal, client_id: int, user_id: int):
         print("⚠ Contract already exists")
 
 
-def seed_events(db: SessionLocal, client_id: int, contract_id: int):
+def seed_events(db: SessionLocal, client_id: int, contract_id: int, user_id: int):
     event = (
         db.query(Event).filter_by(client_id=client_id, contract_id=contract_id).first()
     )
@@ -68,9 +68,9 @@ def seed_events(db: SessionLocal, client_id: int, contract_id: int):
         event = Event(
             client_id=client_id,
             contract_id=contract_id,
+            user_id=user_id,
             start_date=datetime.now(),
             end_date=datetime.now(),
-            support_contact="Michel",
             location="Brasil",
             attendees=28,
             notes="Need to confirm number of attendees",
@@ -120,8 +120,8 @@ def seed_sales_user(db: SessionLocal, role_id: int):
 
 
 def seed_support_user(db: SessionLocal, role_id: int):
-    existing = db.query(User).filter_by(email="test_support@epic-events.com").first()
-    if not existing:
+    user = db.query(User).filter_by(email="test_support@epic-events.com").first()
+    if not user:
         user = User(
             name="Test Support",
             email="test_support@epic-events.com",
@@ -132,6 +132,7 @@ def seed_support_user(db: SessionLocal, role_id: int):
         db.add(user)
         db.commit()
         print(f"{user.name} created")
+    return user
 
 
 def seed():
@@ -151,7 +152,7 @@ def seed():
 
     client = seed_clients(db, sales_user.id)
     contract = seed_contracts(db, client.id, management_user.id)
-    event = seed_events(db, client.id, contract.id)
+    event = seed_events(db, client.id, contract.id, support_user.id)
     db.close()
 
 

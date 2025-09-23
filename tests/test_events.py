@@ -13,9 +13,9 @@ def test_get_all_events(db, events):
     assert len(db_events) == len(events)
 
 
-def test_get_events_without_support(db, management_user, events):
-    events[0].support_contact = None
-    events[1].support_contact = "John Doe"
+def test_get_events_without_support(db, management_user, events, support_user):
+    events[0].user_id = None
+    events[1].user_id = support_user.id
     db.commit()
 
     events_service = EventService(db=db)
@@ -24,7 +24,7 @@ def test_get_events_without_support(db, management_user, events):
     )
 
     assert result is not None
-    assert all(e.support_contact is None for e in result)
+    assert all(e.user_id is None for e in result)
     assert events[0] in result
     assert events[1] not in result
 
@@ -42,16 +42,16 @@ def test_get_events_without_support_with_non_authorized_user(db, support_user, e
         assert str(exc.value) == "Accès refusé (réservé au Management)"
 
 
-def test_update_event(db, management_user, events, clients):
+def test_update_event(db, management_user, events, clients, support_user):
     event = events[0]
     events_service = EventService(db=db)
 
     updated_event = events_service.update_event(
         current_user=management_user,
         event_id=event.id,
+        user_id=support_user.id,
         start_date=event.start_date.replace(hour=14, minute=0),
         end_date=event.end_date.replace(hour=16, minute=0) if event.end_date else None,
-        support_contact="Jane Doe",
         location="New Location",
         attendees=50,
         notes="Updated notes",
@@ -67,7 +67,7 @@ def test_update_event(db, management_user, events, clients):
     assert db_updated_event.start_date.hour == 14
     if db_updated_event.end_date:
         assert db_updated_event.end_date.hour == 16
-    assert db_updated_event.support_contact == "Jane Doe"
+    assert db_updated_event.user_id == support_user.id
     assert db_updated_event.location == "New Location"
     assert db_updated_event.attendees == 50
     assert db_updated_event.notes == "Updated notes"
@@ -96,7 +96,7 @@ def test_update_event_with_non_authorized_user(db, support_user, events, clients
         assert str(exc.value) == "Accès refusé (réservé au Management)"
 
 
-def test_create_event(db, sales_user, clients, contracts):
+def test_create_event(db, sales_user, clients, contracts, support_user):
     client = clients[0]
     client.internal_contact_id = sales_user.id
     db.commit()
@@ -110,10 +110,10 @@ def test_create_event(db, sales_user, clients, contracts):
     event = events_service.create_event(
         current_user=sales_user,
         contract_id=contract.id,
+        user_id=support_user.id,
         client_id=client.id,
         start_date=datetime(2025, 1, 1, 10, 0),
         end_date=datetime(2025, 1, 1, 12, 0),
-        support_contact="John Doe",
         location="Paris",
         attendees=50,
         notes="Kickoff meeting",
@@ -123,7 +123,7 @@ def test_create_event(db, sales_user, clients, contracts):
     assert event.client_id == client.id
     assert event.start_date == datetime(2025, 1, 1, 10, 0)
     assert event.end_date == datetime(2025, 1, 1, 12, 0)
-    assert event.support_contact == "John Doe"
+    assert event.user_id == support_user.id
     assert event.location == "Paris"
     assert event.attendees == 50
     assert event.notes == "Kickoff meeting"
