@@ -13,7 +13,7 @@ class EventService:
         return self.event_db.get_all()
 
     @is_support
-    def get_events_for_support(self, current_user: User):
+    def get_my_events(self, current_user: User):
         query = self.event_db.db.query(Event).filter(Event.user_id == current_user.id)
         return query.all()
 

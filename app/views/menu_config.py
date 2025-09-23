@@ -10,6 +10,7 @@ from app.views.events import (
     list_events_without_support_view,
     update_event_view,
     create_event_view,
+    list_my_events,
 )
 from app.views.users import create_user_view, update_user_view, delete_user_view
 
@@ -36,9 +37,7 @@ role_specific = {
         ("Voir mes contrats", list_contracts_filtered_view),
         ("Créer un événement", create_event_view),
     ],
-    "support": [
-        ("Voir mes événements", lambda user: print("TODO: événements support"))
-    ],
+    "support": [("Voir mes événements", list_my_events)],
 }
 
 logout_option = [("Déconnexion", lambda user: print("🔒 Déconnexion..."))]

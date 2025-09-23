@@ -130,3 +130,11 @@ def test_create_event(db, sales_user, clients, contracts, support_user):
 
     db_event = db.get(Event, event.id)
     assert db_event is not None
+
+
+def test_get_my_events(db, support_user, events):
+    events_service = EventService(db=db)
+    events = events_service.get_my_events(support_user)
+    assert events is not []
+    first_event = events[0]
+    assert first_event.user_id == support_user.id

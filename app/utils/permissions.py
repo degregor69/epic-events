@@ -36,8 +36,8 @@ def is_sales(func):
 def is_support(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        user = kwargs.get("current_user") or args[0]
-        if not user or user.role.name != "support":
+        current_user = kwargs.get("current_user") or (args[1] if args else None)
+        if not current_user or current_user.role.name != "support":
             raise Exception("Accès refusé (réservé au Support)")
         return func(*args, **kwargs)
 

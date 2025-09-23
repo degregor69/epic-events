@@ -28,6 +28,17 @@ def list_all_events(callback=None):
         callback()
 
 
+def list_my_events(current_user, db=None):
+    db = db or next(get_db())
+    service = EventService(db)
+    events = service.get_my_events(current_user=current_user)
+    for e in events:
+        print(
+            f"Event #{e.id} | Contract #{e.contract_id} | Client #{e.client_id} | "
+            f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Location: {e.location or 'N/A'}"
+        )
+
+
 def list_events_without_support_view(current_user):
     db = next(get_db())
     events_service = EventService(db=db)
