@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Event, Client, Contract, User
 from app.services.clients import ClientService
+from app.services.users import UserService
 from app.utils.auth import is_authenticated
 from app.services.events import EventService
 from app.config import get_db
@@ -59,7 +60,12 @@ def list_events_without_support_view(current_user):
 def update_event_view(current_user):
     db = next(get_db())
     events_service = EventService(db=db)
-    events = events_service.get_all_events()
+    users_service = UserService(db=db)
+    events = (
+        events_service.get_all_events()
+        if current_user.role.name == "management"
+        else events_service.get_my_events(current_user)
+    )
     if not events:
         print("❌ No events found.")
         return
@@ -68,7 +74,7 @@ def update_event_view(current_user):
     for i, e in enumerate(events, start=1):
         print(
             f"{i}. Event #{e.id} | Contract #{e.contract_id} | Client #{e.client_id} | "
-            f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Support: {e.support_contact or 'N/A'} | Location: {e.location or 'N/A'}"
+            f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Support: {e.user.name or 'N/A'} | Location: {e.location or 'N/A'}"
         )
 
     choice = int(input("Choose event (number): ")) - 1
@@ -85,9 +91,16 @@ def update_event_view(current_user):
     )
     end_date = datetime.strptime(end_input, "%Y-%m-%d %H:%M") if end_input else None
 
-    support_contact = (
-        input(f"Support contact [{event.support_contact or ''}]: ") or None
-    )
+    chosen_user_id = None
+    if current_user.role.name == "management":
+        users = users_service.get_all_users()
+        for i, user in enumerate(users, start=1):
+            print(
+                f"{i}. User #{user.id}  Support: {user.name} | Role: {user.role.name}"
+            )
+        user_choice = int(input("Choose event (number): ")) - 1
+        chosen_user_id = events[user_choice].id
+
     location = input(f"Location [{event.location or ''}]: ") or None
     attendees_input = input(f"Attendees [{event.attendees or ''}]: ")
     attendees = int(attendees_input) if attendees_input else None
@@ -101,9 +114,9 @@ def update_event_view(current_user):
     updated_event = events_service.update_event(
         current_user=current_user,
         event_id=event.id,
+        user_id=chosen_user_id,
         start_date=start_date,
         end_date=end_date,
-        support_contact=support_contact,
         location=location,
         attendees=attendees,
         notes=notes,
@@ -115,7 +128,7 @@ def update_event_view(current_user):
     print(
         f"Event #{updated_event.id} | Contract #{updated_event.contract_id} | Client #{updated_event.client_id} | "
         f"Start: {updated_event.start_date} | End: {updated_event.end_date or 'N/A'} | "
-        f"Support: {updated_event.support_contact or 'N/A'} | Location: {updated_event.location or 'N/A'} | Attendees: {updated_event.attendees or 'N/A'}"
+        f"Support: {updated_event.user.name or 'N/A'} | Location: {updated_event.location or 'N/A'} | Attendees: {updated_event.attendees or 'N/A'}"
     )
 
 

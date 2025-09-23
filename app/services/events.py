@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
 from app.models import Event, User
+from app.utils.auth import can_update_event
 from app.utils.permissions import is_management, is_sales, is_support
 from app.databases.events import EventDB
 
@@ -21,34 +22,34 @@ class EventService:
     def get_events_without_support(self, current_user: User):
         return self.event_db.get_without_support()
 
-    @is_management
+    @can_update_event
     def update_event(
         self,
-        current_user: User,
-        event_id: int,
-        user_id: int,
-        start_date: datetime = None,
-        end_date: datetime = None,
-        location: str = None,
-        attendees: int = None,
-        notes: str = None,
-        contract_id: int = None,
-        client_id: int = None,
+        current_user,
+        event_id,
+        user_id=None,
+        start_date=None,
+        end_date=None,
+        support_contact=None,
+        location=None,
+        attendees=None,
+        notes=None,
+        contract_id=None,
+        client_id=None,
     ):
         event = self.event_db.get_by_id(event_id)
-        if not event:
-            raise Exception(f"❌ Event with id {event_id} not found")
 
         data = {
             "start_date": start_date,
             "end_date": end_date,
+            "support_contact": support_contact,
             "location": location,
             "attendees": attendees,
             "notes": notes,
-            "user_id": user_id,
             "contract_id": contract_id,
             "client_id": client_id,
         }
+
         return self.event_db.update(event, data)
 
     @is_sales

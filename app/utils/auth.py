@@ -31,3 +31,24 @@ def is_authenticated(func):
         return func()
 
     return wrapper
+
+
+def can_update_event(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        current_user = kwargs.get("current_user") or args[1]
+        event_id = kwargs.get("event_id") or args[2]
+
+        if not current_user:
+            raise Exception("current_user argument missing")
+
+        event = self.event_db.get_by_id(event_id)
+        if not event:
+            raise Exception(f"❌ Event {event_id} not found")
+
+        if current_user.role.name == "support" and event.user_id != current_user.id:
+            raise Exception("❌ Access denied – not your event")
+
+        return func(self, *args, **kwargs)
+
+    return wrapper

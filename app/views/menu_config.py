@@ -37,7 +37,10 @@ role_specific = {
         ("Voir mes contrats", list_contracts_filtered_view),
         ("Créer un événement", create_event_view),
     ],
-    "support": [("Voir mes événements", list_my_events)],
+    "support": [
+        ("Voir mes événements", list_my_events),
+        ("Modifier mes événements", update_event_view),
+    ],
 }
 
 logout_option = [("Déconnexion", lambda user: print("🔒 Déconnexion..."))]

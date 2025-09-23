@@ -21,3 +21,4 @@ class User(Base):
 
     clients = relationship("Client", back_populates="internal_contact")
     contracts = relationship("Contract", back_populates="user")
+    events = relationship("Event", back_populates="user")

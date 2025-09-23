@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
+from sqlalchemy.orm import relationship
+
 from app.config import Base
 
 
@@ -14,3 +16,5 @@ class Event(Base):
     location = Column(String, nullable=True)
     attendees = Column(Integer, nullable=True)
     notes = Column(Text, nullable=True)
+
+    user = relationship("User", back_populates="events")
