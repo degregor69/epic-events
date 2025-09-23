@@ -1,17 +1,14 @@
-from app.services.contracts import (
-    get_all_contracts,
-    update_contract,
-    get_all_contracts_for_clients_user,
-    get_contracts_filtered,
-)
-from app.config import get_db
+from app.services.clients import ClientService
+from app.services.contracts import ContractService
+from app.services.users import UserService
 from app.utils.auth import is_authenticated
 
 
 @is_authenticated
 def list_all_contracts():
     db = next(get_db())
-    contracts = get_all_contracts(db)
+    contracts_service = ContractService(db=db)
+    contracts = contracts_service.get_all_contracts()
 
     if not contracts:
         print("⚠ Aucun contrat trouvé.")
@@ -25,22 +22,22 @@ def list_all_contracts():
 
 
 from app.config import get_db
-from app.services.contracts import create_contract
-from app.services.users import get_all_users
-from app.services.clients import get_all_clients
 
 
 def create_contract_view(current_user):
     db = next(get_db())
+    clients_service = ClientService(db=db)
+    users_service = UserService(db=db)
+    contracts_service = ContractService(db=db)
 
-    clients = get_all_clients(db)
+    clients = clients_service.get_all_clients()
     print("Available clients:")
     for i, client in enumerate(clients, start=1):
         print(f"{i}. {client.full_name} ({client.company})")
     client_choice = int(input("Choose client (number): ")) - 1
     client_id = clients[client_choice].id
 
-    users = get_all_users(db)
+    users = users_service.get_all_users()
     print("Assign contract to user:")
     for i, user in enumerate(users, start=1):
         print(f"{i}. {user.name} ({user.email})")
@@ -52,7 +49,7 @@ def create_contract_view(current_user):
     signed_input = input("Is it signed? (y/N): ").lower()
     signed = signed_input == "y"
 
-    contract = create_contract(
+    contract = contracts_service.create_contract(
         current_user=current_user,
         db=db,
         user_id=user_id,
@@ -70,13 +67,18 @@ def create_contract_view(current_user):
 
 def update_contract_view(current_user):
     db = next(get_db())
+    contracts_service = ContractService(db=db)
+    users_service = UserService(db=db)
+    clients_service = ClientService(db=db)
 
     if current_user.role.name == "management":
-        contracts = get_all_contracts(db)
+        contracts = contracts_service.get_all_contracts()
     else:
-        contracts = get_all_contracts_for_clients_user(db, current_user.id)
+        contracts = contracts_service.get_all_contracts_for_clients_user(
+            current_user.id
+        )
 
-    contracts = get_all_contracts(db)
+    contracts = contracts_service.get_all_contracts()
     if not contracts:
         print("❌ No contracts found.")
         return
@@ -110,7 +112,7 @@ def update_contract_view(current_user):
     change_user = input("Change assigned user? (y/N): ").lower() == "y"
     user_id = None
     if change_user:
-        users = get_all_users(db)
+        users = users_service.get_all_users()
         print("Available users:")
         for i, user in enumerate(users, start=1):
             print(f"{i}. {user.name} ({user.email})")
@@ -120,14 +122,14 @@ def update_contract_view(current_user):
     change_client = input("Change client? (y/N): ").lower() == "y"
     client_id = None
     if change_client:
-        clients = get_all_clients(db)
+        clients = clients_service.get_all_clients()
         print("Available clients:")
         for i, client in enumerate(clients, start=1):
             print(f"{i}. {client.full_name} ({client.company})")
         client_choice = int(input("Choose client (number): ")) - 1
         client_id = clients[client_choice].id
 
-    updated_contract = update_contract(
+    updated_contract = contracts_service.update_contract(
         current_user=current_user,
         db=db,
         contract_id=contract_id,
@@ -151,6 +153,7 @@ def update_contract_view(current_user):
 
 def list_contracts_filtered_view(current_user):
     db = next(get_db())
+    contracts_service = ContractService(db=db)
 
     print("Filter contracts:")
     only_unsigned = input("Show only unsigned contracts? (y/N): ").lower() == "y"
@@ -158,7 +161,7 @@ def list_contracts_filtered_view(current_user):
         input("Show only contracts with pending amount? (y/N): ").lower() == "y"
     )
 
-    contracts = get_contracts_filtered(
+    contracts = contracts_service.get_contracts_filtered(
         current_user=current_user,
         db=db,
         only_unsigned=only_unsigned,

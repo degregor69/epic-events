@@ -3,20 +3,17 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.models import Event, Client, Contract, User
+from app.services.clients import ClientService
 from app.utils.auth import is_authenticated
-from app.services.events import (
-    get_all_events,
-    get_events_without_support,
-    update_event,
-    create_event,
-)
+from app.services.events import EventService
 from app.config import get_db
 
 
 @is_authenticated
 def list_all_events(callback=None):
     db = next(get_db())
-    events = get_all_events(db)
+    events_service = EventService(db=db)
+    events = events_service.get_all_events()
     if not events:
         print("⚠ Aucun événement trouvé.")
         return
@@ -33,7 +30,8 @@ def list_all_events(callback=None):
 
 def list_events_without_support_view(current_user):
     db = next(get_db())
-    events = get_events_without_support(current_user=current_user, db=db)
+    events_service = EventService(db=db)
+    events = events_service.get_events_without_support(current_user=current_user)
 
     if not events:
         print("✅ All events have a support assigned.")
@@ -49,8 +47,8 @@ def list_events_without_support_view(current_user):
 
 def update_event_view(current_user):
     db = next(get_db())
-
-    events = db.query(Event).all()
+    events_service = EventService(db=db)
+    events = events_service.get_all_events()
     if not events:
         print("❌ No events found.")
         return
@@ -89,9 +87,8 @@ def update_event_view(current_user):
     client_input = input(f"Client ID [{event.client_id}]: ")
     client_id = int(client_input) if client_input else None
 
-    updated_event = update_event(
+    updated_event = events_service.update_event(
         current_user=current_user,
-        db=db,
         event_id=event.id,
         start_date=start_date,
         end_date=end_date,
@@ -111,22 +108,12 @@ def update_event_view(current_user):
     )
 
 
-def get_clients_with_signed_contracts(db: Session, user_id: int):
-    clients = (
-        db.query(Client)
-        .join(Contract, Contract.client_id == Client.id)
-        .filter(Client.internal_contact_id == user_id)
-        .filter(Contract.signed.is_(True))
-        .all()
-    )
-    return clients
-
-
 def create_event_view(current_user: User):
     db = next(get_db())
+    clients_service = ClientService(db=db)
+    events_service = EventService(db=db)
 
-    # TODO send data instead of getting it
-    clients = get_clients_with_signed_contracts(db=db, user_id=current_user.id)
+    clients = clients_service.get_clients_with_signed_contracts(user_id=current_user.id)
     if not clients:
         print(f"❌ No clients with signed contracts for the user {current_user.name}.")
         return
@@ -168,9 +155,8 @@ def create_event_view(current_user: User):
     attendees = int(attendees_input) if attendees_input else None
     notes = input("Notes (optional): ") or None
 
-    event = create_event(
+    event = events_service.create_event(
         current_user=current_user,
-        db=db,
         contract_id=contract.id,
         client_id=client.id,
         start_date=start_date,

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models import Client, User
+from app.models import Client, User, Contract
 from app.utils.permissions import is_sales
 from app.databases.clients import ClientDB
 
@@ -13,6 +13,16 @@ class ClientService:
 
     def get_clients_by_user(self, user_id: int):
         return self.client_db.get_by_user(user_id)
+
+    def get_clients_with_signed_contracts(self, user_id: int):
+        clients = (
+            self.client_db.query(Client)
+            .join(Contract, Contract.client_id == Client.id)
+            .filter(Client.internal_contact_id == user_id)
+            .filter(Contract.signed.is_(True))
+            .all()
+        )
+        return clients
 
     @is_sales
     def create_client(

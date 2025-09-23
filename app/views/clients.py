@@ -1,18 +1,14 @@
 from app.models import User, Client
 from app.utils.auth import is_authenticated
-from app.services.clients import (
-    get_all_clients,
-    create_client,
-    update_client,
-    get_clients_by_user,
-)
+from app.services.clients import ClientService
 from app.config import get_db
 
 
 @is_authenticated
 def list_all_clients():
     db = next(get_db())
-    clients = get_all_clients(db)
+    clients_service = ClientService(db=db)
+    clients = clients_service.get_all_clients()
     if not clients:
         print("⚠ Aucun client trouvé.")
         return
@@ -24,6 +20,7 @@ def list_all_clients():
 
 def create_client_view(current_user: User):
     db = next(get_db())
+    clients_service = ClientService(db=db)
 
     print("Enter new client information:")
 
@@ -32,9 +29,8 @@ def create_client_view(current_user: User):
     phone = input("Phone: ")
     company = input("Company: ")
 
-    client = create_client(
+    client = clients_service.create_client(
         current_user=current_user,
-        db=db,
         full_name=full_name,
         email=email,
         phone=phone,
@@ -50,8 +46,9 @@ def create_client_view(current_user: User):
 
 def update_client_view(current_user):
     db = next(get_db())
+    clients_service = ClientService(db=db)
 
-    clients = get_clients_by_user(db=db, user_id=current_user.id)
+    clients = clients_service.get_clients_by_user(user_id=current_user.id)
     if not clients:
         print("❌ You are not responsible for any clients.")
         return
@@ -82,9 +79,8 @@ def update_client_view(current_user):
         user_choice = int(input("Choose user (number): ")) - 1
         internal_contact_id = users[user_choice].id
 
-    updated_client = update_client(
+    updated_client = clients_service.update_client(
         current_user=current_user,
-        db=db,
         client_id=client.id,
         full_name=full_name,
         email=email,
