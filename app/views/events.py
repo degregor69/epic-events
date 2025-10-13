@@ -209,3 +209,5 @@ def create_event_view(current_user: User):
         f"Date de début: {event.start_date} | Date de fin : {event.end_date or 'N/A'} | "
         f"| Lieu: {event.location or 'N/A'}"
     )
+
+
