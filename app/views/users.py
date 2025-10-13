@@ -3,7 +3,6 @@ from app.config import get_db
 from app.services.users import UserService
 from app.services.roles import RoleService
 from app.models import User
-from app.utils.io import ask
 
 
 def login_view(db=None):
