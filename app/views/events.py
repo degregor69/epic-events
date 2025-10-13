@@ -43,7 +43,8 @@ def list_my_events(current_user, db=None):
 def list_events_without_support_view(current_user):
     db = next(get_db())
     events_service = EventService(db=db)
-    events = events_service.get_events_without_support(current_user=current_user)
+    events = events_service.get_events_without_support(
+        current_user=current_user)
 
     if not events:
         print("✅ All events have a support assigned.")
@@ -81,15 +82,18 @@ def update_event_view(current_user):
     event = events[choice]
 
     print("\nEntrez de nouvelles valeurs (laissez blanc pour ne pas modifier):")
-    start_input = input(f"Date de début : [{event.start_date.strftime('%Y-%m-%d %H:%M')}]: ")
+    start_input = input(
+        f"Date de début : [{event.start_date.strftime('%Y-%m-%d %H:%M')}]: ")
     end_input = input(
         f"Date de fin : [{event.end_date.strftime('%Y-%m-%d %H:%M') if event.end_date else ''}]: "
     )
 
     start_date = (
-        datetime.strptime(start_input, "%Y-%m-%d %H:%M") if start_input else None
+        datetime.strptime(
+            start_input, "%Y-%m-%d %H:%M") if start_input else None
     )
-    end_date = datetime.strptime(end_input, "%Y-%m-%d %H:%M") if end_input else None
+    end_date = datetime.strptime(
+        end_input, "%Y-%m-%d %H:%M") if end_input else None
 
     chosen_user_id = None
     if current_user.role.name == "management":
@@ -98,7 +102,8 @@ def update_event_view(current_user):
             print(
                 f"{i}. Support: {user.name} | Role: {user.role.name}"
             )
-        user_choice = int(input("Modifier l'utilisateur attribué (numéro) : ")) - 1
+        user_choice = int(
+            input("Modifier l'utilisateur attribué (numéro) : ")) - 1
         chosen_user_id = users[user_choice].id
 
     location = input(f"Lieu [{event.location or ''}]: ") or None
@@ -138,7 +143,8 @@ def create_event_view(current_user: User):
     events_service = EventService(db=db)
     users_service = UserService(db=db)
 
-    clients = clients_service.get_clients_with_signed_contracts(user_id=current_user.id)
+    clients = clients_service.get_clients_with_signed_contracts(
+        user_id=current_user.id)
     if not clients:
         print(f"Pas de contrats signés par {current_user.name}.")
         return
@@ -146,7 +152,7 @@ def create_event_view(current_user: User):
     contracts = []
     print("Contrats disponibles pour les clients dont vous êtes responsable :")
     for client in clients:
-        for i,contract in enumerate(client.contracts, start=1):
+        for i, contract in enumerate(client.contracts, start=1):
             contracts.append(contract)
             print(
                 f"{i}. Contrat #{contract.id} | "
@@ -159,16 +165,18 @@ def create_event_view(current_user: User):
         return
 
     contract_choice = int(input("Choisissez un contrat (numéro) ")) - 1
-  
+
     contract = contracts[contract_choice]
     client = contract.client
 
     start_date_str = input("Entrez la date de début (YYYY-MM-DD HH:MM): ")
     start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M")
 
-    end_date_str = input("Entrez la date de fin : (YYYY-MM-DD HH:MM, leave blank if none): ")
+    end_date_str = input(
+        "Entrez la date de fin : (YYYY-MM-DD HH:MM, leave blank if none): ")
     end_date = (
-        datetime.strptime(end_date_str, "%Y-%m-%d %H:%M") if end_date_str else None
+        datetime.strptime(
+            end_date_str, "%Y-%m-%d %H:%M") if end_date_str else None
     )
     location = input("Lieu : ") or None
     attendees_input = input("Nombre d'invités : ")

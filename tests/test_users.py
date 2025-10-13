@@ -175,8 +175,8 @@ def test_login_user_wrong_password(db):
 
     user_service = UserService(db=db)
 
-    success, message, returned_user = user_service.login_user(user.email, "incorrect")
+    success, message, returned_user = user_service.login_user(
+        user.email, "incorrect")
     assert success is False
     assert message == "Wrong password"
     assert returned_user is None
-

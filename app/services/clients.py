@@ -16,7 +16,7 @@ class ClientService:
 
     def get_clients_with_signed_contracts(self, user_id: int):
         return self.client_db.get_clients_with_signed_contrats(user_id)
-    
+
     @is_sales
     def create_client(
         self,

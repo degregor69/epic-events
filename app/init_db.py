@@ -40,7 +40,8 @@ def seed_clients(db: SessionLocal, user_id: int):
 
 def seed_contracts(db: SessionLocal, client_id: int, user_id: int):
     contract = (
-        db.query(Contract).filter_by(client_id=client_id, user_id=user_id).first()
+        db.query(Contract).filter_by(
+            client_id=client_id, user_id=user_id).first()
     )
     if not contract:
         contract = Contract(
@@ -62,7 +63,8 @@ def seed_contracts(db: SessionLocal, client_id: int, user_id: int):
 
 def seed_events(db: SessionLocal, client_id: int, contract_id: int, user_id: int):
     event = (
-        db.query(Event).filter_by(client_id=client_id, contract_id=contract_id).first()
+        db.query(Event).filter_by(client_id=client_id,
+                                  contract_id=contract_id).first()
     )
     if not event:
         event = Event(
@@ -83,7 +85,8 @@ def seed_events(db: SessionLocal, client_id: int, contract_id: int, user_id: int
 
 
 def seed_management_user(db: SessionLocal, role_id: int):
-    existing = db.query(User).filter_by(email="test_management@epic-events.com").first()
+    existing = db.query(User).filter_by(
+        email="test_management@epic-events.com").first()
     if not existing:
         user = User(
             name="Test Manager",
@@ -103,7 +106,8 @@ def seed_management_user(db: SessionLocal, role_id: int):
 
 
 def seed_sales_user(db: SessionLocal, role_id: int):
-    existing = db.query(User).filter_by(email="test_sales@epic-events.com").first()
+    existing = db.query(User).filter_by(
+        email="test_sales@epic-events.com").first()
     if not existing:
         user = User(
             name="Test Sales",
@@ -120,7 +124,8 @@ def seed_sales_user(db: SessionLocal, role_id: int):
 
 
 def seed_support_user(db: SessionLocal, role_id: int):
-    user = db.query(User).filter_by(email="test_support@epic-events.com").first()
+    user = db.query(User).filter_by(
+        email="test_support@epic-events.com").first()
     if not user:
         user = User(
             name="Test Support",

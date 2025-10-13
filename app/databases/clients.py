@@ -19,7 +19,7 @@ class ClientDB:
             .filter_by(id=client_id, internal_contact_id=user_id)
             .first()
         )
-    
+
     def get_clients_with_signed_contrats(self, user_id: int):
         clients = (
             self.db.query(Client)

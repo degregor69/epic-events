@@ -1,3 +1,4 @@
+from app.config import get_db
 from app.services.clients import ClientService
 from app.services.contracts import ContractService
 from app.services.users import UserService
@@ -21,9 +22,6 @@ def list_all_contracts():
         )
 
 
-from app.config import get_db
-
-
 def create_contract_view(current_user):
     db = next(get_db())
     clients_service = ClientService(db=db)
@@ -34,14 +32,16 @@ def create_contract_view(current_user):
     print("Clients disponibles :")
     for i, client in enumerate(clients, start=1):
         print(f"{i}. {client.full_name} ({client.company})")
-    client_choice = int(input("Choisissez un client en entrant le numéro : ")) - 1
+    client_choice = int(
+        input("Choisissez un client en entrant le numéro : ")) - 1
     client_id = clients[client_choice].id
 
     users = users_service.get_all_users()
     print("Assignez le contrat à un utilisateur :")
     for i, user in enumerate(users, start=1):
         print(f"{i}. {user.name} ({user.email})")
-    user_choice = int(input("Choisissez l'utilisateur en entrant le numéro : ")) - 1
+    user_choice = int(
+        input("Choisissez l'utilisateur en entrant le numéro : ")) - 1
     user_id = users[user_choice].id
 
     total_amount = float(input("Entrez le montant du contrat : "))
@@ -97,7 +97,8 @@ def update_contract_view(current_user):
     total_amount = float(total_amount_input) if total_amount_input else None
 
     pending_amount_input = input("Nouveau montant restant : ")
-    pending_amount = float(pending_amount_input) if pending_amount_input else None
+    pending_amount = float(
+        pending_amount_input) if pending_amount_input else None
 
     signed_input = input("Est-ce signé ? (o/N): ").lower()
     signed = None
@@ -106,7 +107,8 @@ def update_contract_view(current_user):
     elif signed_input == "n":
         signed = False
 
-    change_user = input("Voulez-vous modifier l'utilisateur assigné (o/N): ").lower() == "o"
+    change_user = input(
+        "Voulez-vous modifier l'utilisateur assigné (o/N): ").lower() == "o"
     user_id = None
     if change_user:
         users = users_service.get_all_users()
@@ -116,7 +118,8 @@ def update_contract_view(current_user):
         user_choice = int(input("Choisissez l'utilisateur (numéro) : ")) - 1
         user_id = users[user_choice].id
 
-    change_client = input("Voulez-vous changer le client ? (o/N): ").lower() == "y"
+    change_client = input(
+        "Voulez-vous changer le client ? (o/N): ").lower() == "y"
     client_id = None
     if change_client:
         clients = clients_service.get_all_clients()
@@ -152,9 +155,11 @@ def list_contracts_filtered_view(current_user):
     contracts_service = ContractService(db=db)
 
     print("Voulez-vous filtrer les contrats ?:")
-    only_unsigned = input("Montrer seulement les contrats signés ? (o/N): ").lower() == "o"
+    only_unsigned = input(
+        "Montrer seulement les contrats signés ? (o/N): ").lower() == "o"
     only_pending = (
-        input("Montrer seulement les contrats avec un montant restant (o/N): ").lower() == "o"
+        input(
+            "Montrer seulement les contrats avec un montant restant (o/N): ").lower() == "o"
     )
 
     contracts = contracts_service.get_contracts_filtered(

@@ -49,7 +49,8 @@ def verify_access_token(token: str) -> dict:
 
 def verify_refresh_token(token: str) -> dict:
     payload = jwt.decode(
-        token, jwt_secret_key, algorithms=[jwt_algorithm], options={"verify_exp": True}
+        token, jwt_secret_key, algorithms=[
+            jwt_algorithm], options={"verify_exp": True}
     )
     if payload.get("type") != "refresh":
         raise Exception("Invalid refresh token")

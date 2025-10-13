@@ -69,14 +69,16 @@ def update_client_view(current_user):
     phone = input(f"Téléphone [{client.phone}]: ") or None
     company = input(f"Entreprise [{client.company}]: ") or None
 
-    change_internal = input(f"Changez le responsable du client (o/N): ").lower() == "o"
+    change_internal = input(
+        f"Changez le responsable du client (o/N): ").lower() == "o"
     internal_contact_id = None
     if change_internal:
         users = db.query(User).all()
         print("Utilisateurs disponibles :")
         for i, user in enumerate(users, start=1):
             print(f"{i}. {user.name} ({user.email})")
-        user_choice = int(input("Choisissez l'utilisateur disponible (numéro) :")) - 1
+        user_choice = int(
+            input("Choisissez l'utilisateur disponible (numéro) :")) - 1
         internal_contact_id = users[user_choice].id
 
     updated_client = clients_service.update_client(

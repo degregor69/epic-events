@@ -51,7 +51,8 @@ def test_update_event(db, management_user, events, clients, support_user):
         event_id=event.id,
         user_id=support_user.id,
         start_date=event.start_date.replace(hour=14, minute=0),
-        end_date=event.end_date.replace(hour=16, minute=0) if event.end_date else None,
+        end_date=event.end_date.replace(
+            hour=16, minute=0) if event.end_date else None,
         location="New Location",
         attendees=50,
         notes="Updated notes",
@@ -84,7 +85,8 @@ def test_update_event_with_non_authorized_user(db, support_user, events, clients
             event_id=event.id,
             start_date=event.start_date.replace(hour=14, minute=0),
             end_date=(
-                event.end_date.replace(hour=16, minute=0) if event.end_date else None
+                event.end_date.replace(
+                    hour=16, minute=0) if event.end_date else None
             ),
             support_contact="Jane Doe",
             location="New Location",

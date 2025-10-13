@@ -20,7 +20,6 @@ def db():
         session.close()
 
 
-
 @pytest.fixture(scope="function")
 def roles(db):
     role_names = ["management", "sales", "support"]

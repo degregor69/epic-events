@@ -6,7 +6,8 @@ from app.models import Contract
 def is_management(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        current_user = kwargs.get("current_user") or (args[1] if args else None)
+        current_user = kwargs.get("current_user") or (
+            args[1] if args else None)
         if not current_user:
             raise Exception("current_user argument missing")
 
@@ -32,7 +33,8 @@ def is_sales(func):
 def is_support(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        current_user = kwargs.get("current_user") or (args[1] if args else None)
+        current_user = kwargs.get("current_user") or (
+            args[1] if args else None)
         if not current_user or current_user.role.name != "support":
             raise Exception("Accès refusé (réservé au Support)")
         return func(*args, **kwargs)
@@ -43,8 +45,10 @@ def is_support(func):
 def is_management_or_responsible_sales(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        current_user = kwargs.get("current_user") or (args[0] if args else None)
-        contract_id = kwargs.get("contract_id") or (args[1] if len(args) > 1 else None)
+        current_user = kwargs.get("current_user") or (
+            args[0] if args else None)
+        contract_id = kwargs.get("contract_id") or (
+            args[1] if len(args) > 1 else None)
 
         if not current_user or contract_id is None:
             raise Exception("Missing required arguments")
@@ -53,7 +57,8 @@ def is_management_or_responsible_sales(func):
         if db is None:
             raise Exception("DB session not found in the service")
 
-        contract = db.query(Contract).filter(Contract.id == contract_id).first()
+        contract = db.query(Contract).filter(
+            Contract.id == contract_id).first()
         if not contract:
             raise Exception("Contract not found")
 

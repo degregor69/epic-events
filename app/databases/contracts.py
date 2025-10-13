@@ -38,10 +38,11 @@ class ContractDB:
         self, user_id: int, only_unsigned: bool, only_pending: bool
     ):
         query = (
-            self.db.query(Contract).join(Client).filter_by(internal_contact_id=user_id)
+            self.db.query(Contract).join(Client).filter_by(
+                internal_contact_id=user_id)
         )
         if only_unsigned:
-            query = query.filter(Contract.signed==False)
+            query = query.filter(Contract.signed == False)
         if only_pending:
             query = query.filter(Contract.pending_amount > 0)
         return query.all()

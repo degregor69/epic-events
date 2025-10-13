@@ -53,7 +53,8 @@ class UserService:
         access_token = create_access_token(user.email)
         refresh_token = create_refresh_token(user.email)
 
-        save_tokens({"access_token": access_token, "refresh_token": refresh_token})
+        save_tokens({"access_token": access_token,
+                    "refresh_token": refresh_token})
         return True, "Login successful", user
 
     def get_all_users(self):
