@@ -88,24 +88,21 @@ def test_create_user_view_success(db, management_user):
 
 
 def test_update_user_view_success(db, support_user, roles, management_user):
-    from unittest.mock import patch
-    from app.views.users import update_user_view
-
-    with patch("app.views.users.get_update_user_data") as mock_get_update_user_data:
+    with patch("app.views.users.get_update_user_data") as mock_get_update_user_data, patch("app.views.users.get_user_id_to_be_updated") as mock_get_user_id_to_be_updated:
         mock_get_update_user_data.return_value = {
-            "user_id": support_user.id,
             "name": "New name",
             "email": "new@email.com",
             "employee_number": 999,
             "role_id": roles[0].id,
         }
+        mock_get_user_id_to_be_updated.return_value = 1
         updated_user = update_user_view(current_user=management_user, db=db)
 
-    db.refresh(support_user)
-    assert support_user.name == "New name"
-    assert support_user.email == "new@email.com"
-    assert support_user.employee_number == 999
-    assert support_user.role_id == roles[0].id
+        db.refresh(support_user)
+        assert support_user.name == "New name"
+        assert support_user.email == "new@email.com"
+        assert support_user.employee_number == 999
+        assert support_user.role_id == roles[0].id
 
 
 def test_create_user_view_permission_denied(
@@ -122,8 +119,8 @@ def test_create_user_view_permission_denied(
                 "password": "password123",
             }
 
-        create_user_view(support_user, db=db)
-        assert str(exc.value) == "Accès refusé (réservé au Management)"
+            create_user_view(support_user, db=db)
+            assert str(exc.value) == "Accès refusé (réservé au Management)"
 
 
 def test_delete_user(management_user, db, user_to_be_deleted):
@@ -142,5 +139,44 @@ def test_delete_user_view_permission_denied(
     db,
 ):
     with pytest.raises(Exception) as exc:
-        delete_user_view(support_user, db)
-        assert str(exc.value) == "Accès refusé (réservé au Management)"
+        with patch(
+            "app.views.users.get_user_id_to_be_deleted"
+        ) as mock_get_user_id_to_be_deleted:
+            mock_get_user_id_to_be_deleted.return_value = 1
+            delete_user_view(support_user, db)
+            assert str(exc.value) == "Accès refusé (réservé au Management)"
+
+
+def test_login_user_not_found(db):
+    user_service = UserService(db=db)
+
+    success, message, user = user_service.login_user("noone@example.com", "pw")
+    assert success is False
+    assert message == "User not found"
+    assert user is None
+
+
+def test_login_user_wrong_password(db):
+    from app.utils.security import hash_password
+
+    # create a user with a hashed password so verify_password will run and fail for wrong pw
+    user = db.query(User).filter_by(email="wrongpw@example.com").first()
+    if not user:
+        user = User(
+            name="Wrong Pw",
+            email="wrongpw@example.com",
+            hashed_password=hash_password("rightpassword"),
+            employee_number=456,
+            role_id=None,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    user_service = UserService(db=db)
+
+    success, message, returned_user = user_service.login_user(user.email, "incorrect")
+    assert success is False
+    assert message == "Wrong password"
+    assert returned_user is None
+

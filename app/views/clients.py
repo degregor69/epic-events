@@ -22,12 +22,12 @@ def create_client_view(current_user: User):
     db = next(get_db())
     clients_service = ClientService(db=db)
 
-    print("Enter new client information:")
+    print("Entrez les informations du nouveau client :")
 
-    full_name = input("Full name: ")
-    email = input("Email: ")
-    phone = input("Phone: ")
-    company = input("Company: ")
+    full_name = input("Nom complet : ")
+    email = input("Email : ")
+    phone = input("Téléphone : ")
+    company = input("Entreprise :")
 
     client = clients_service.create_client(
         current_user=current_user,
@@ -37,10 +37,10 @@ def create_client_view(current_user: User):
         company=company,
     )
 
-    print("\n✅ Client created successfully!")
+    print("\nClient créé avec succès !")
     print(
-        f"Client #{client.id} | Name: {client.full_name} | Email: {client.email} | "
-        f"Phone: {client.phone} | Company: {client.company} | Internal contact: {client.internal_contact}"
+        f"Client #{client.id} | Nom : {client.full_name} | Email : {client.email} | "
+        f"Téléphone : {client.phone} | Entreprise : {client.company} | Contact interne : {client.internal_contact.name}"
     )
 
 
@@ -50,33 +50,33 @@ def update_client_view(current_user):
 
     clients = clients_service.get_clients_by_user(user_id=current_user.id)
     if not clients:
-        print("❌ You are not responsible for any clients.")
+        print("Vous n'êtes responsables d'aucun client")
         return
 
-    print("Your clients:")
+    print("Vos clients : ")
     for i, client in enumerate(clients, start=1):
         print(
-            f"{i}. Client #{client.id} | Name: {client.full_name} | Email: {client.email} | "
-            f"Phone: {client.phone} | Company: {client.company}"
+            f"{i}. Client #{client.id} | Nom : {client.full_name} | Email : {client.email} | "
+            f"Téléphone : {client.phone} | Entreprise : {client.company}"
         )
 
-    choice = int(input("Choose client (number): ")) - 1
+    choice = int(input("Choissiez le client à modifier (numéro) ")) - 1
     client = clients[choice]
 
-    print("\nEnter new values (leave blank to keep current):")
-    full_name = input(f"Full name [{client.full_name}]: ") or None
+    print("\nEntrez les nouvelles valeurs (laissez blanc pour passer):")
+    full_name = input(f"Nom complet [{client.full_name}]: ") or None
     email = input(f"Email [{client.email}]: ") or None
-    phone = input(f"Phone [{client.phone}]: ") or None
-    company = input(f"Company [{client.company}]: ") or None
+    phone = input(f"Téléphone [{client.phone}]: ") or None
+    company = input(f"Entreprise [{client.company}]: ") or None
 
-    change_internal = input(f"Change responsible user? (y/N): ").lower() == "y"
+    change_internal = input(f"Changez le responsable du client (o/N): ").lower() == "o"
     internal_contact_id = None
     if change_internal:
         users = db.query(User).all()
-        print("Available users:")
+        print("Utilisateurs disponibles :")
         for i, user in enumerate(users, start=1):
             print(f"{i}. {user.name} ({user.email})")
-        user_choice = int(input("Choose user (number): ")) - 1
+        user_choice = int(input("Choisissez l'utilisateur disponible (numéro) :")) - 1
         internal_contact_id = users[user_choice].id
 
     updated_client = clients_service.update_client(
@@ -89,8 +89,8 @@ def update_client_view(current_user):
         internal_contact_id=internal_contact_id,
     )
 
-    print("\n✅ Client updated successfully!")
+    print("\nClient mis à jour avec succès !")
     print(
-        f"Client #{updated_client.id} | Name: {updated_client.full_name} | Email: {updated_client.email} | "
-        f"Phone: {updated_client.phone} | Company: {updated_client.company} | Responsible: {updated_client.internal_contact.name}"
+        f"Client #{updated_client.id} | Nom : {updated_client.full_name} | Email : {updated_client.email} | "
+        f"Téléphone : {updated_client.phone} | Entreprise : {updated_client.company} | Responsable : {updated_client.internal_contact.name}"
     )

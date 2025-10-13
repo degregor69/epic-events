@@ -43,4 +43,4 @@ role_specific = {
     ],
 }
 
-logout_option = [("Déconnexion", lambda user: print("🔒 Déconnexion..."))]
+logout_option = [("Déconnexion", None)]

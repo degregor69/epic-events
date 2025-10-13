@@ -15,15 +15,8 @@ class ClientService:
         return self.client_db.get_by_user(user_id)
 
     def get_clients_with_signed_contracts(self, user_id: int):
-        clients = (
-            self.client_db.query(Client)
-            .join(Contract, Contract.client_id == Client.id)
-            .filter(Client.internal_contact_id == user_id)
-            .filter(Contract.signed.is_(True))
-            .all()
-        )
-        return clients
-
+        return self.client_db.get_clients_with_signed_contrats(user_id)
+    
     @is_sales
     def create_client(
         self,

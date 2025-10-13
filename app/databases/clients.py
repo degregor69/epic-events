@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models import Client
+from app.models.contracts import Contract
 
 
 class ClientDB:
@@ -18,6 +19,16 @@ class ClientDB:
             .filter_by(id=client_id, internal_contact_id=user_id)
             .first()
         )
+    
+    def get_clients_with_signed_contrats(self, user_id: int):
+        clients = (
+            self.db.query(Client)
+            .join(Contract, Contract.client_id == Client.id)
+            .filter(Client.internal_contact_id == user_id)
+            .filter(Contract.signed.is_(True))
+            .all()
+        )
+        return clients
 
     def add(self, client: Client):
         self.db.add(client)

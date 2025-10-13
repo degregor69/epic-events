@@ -10,9 +10,6 @@ def main_view():
         show_menu(user)
 
 
-from app.views.menu_config import common_menu, role_specific, logout_option
-
-
 def show_menu(user):
     role = user.role.name
 
@@ -30,10 +27,9 @@ def show_menu(user):
             label, action = options[index]
 
             if label == "Déconnexion":
-                print("🔒 Déconnexion...")
+                print("Déconnexion...")
                 break
             action(user)
 
-        except (ValueError, IndexError):
-            print(ValueError)
-            print("⚠ Option invalide")
+        except Exception as e:
+            raise e

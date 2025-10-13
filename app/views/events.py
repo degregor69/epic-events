@@ -67,23 +67,23 @@ def update_event_view(current_user):
         else events_service.get_my_events(current_user)
     )
     if not events:
-        print("❌ No events found.")
+        print("Pas d'événement trouvé.")
         return
 
-    print("Available events:")
+    print("Événements disponibles:")
     for i, e in enumerate(events, start=1):
         print(
-            f"{i}. Event #{e.id} | Contract #{e.contract_id} | Client #{e.client_id} | "
-            f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Support: {e.user.name or 'N/A'} | Location: {e.location or 'N/A'}"
+            f"{i}. | Contrat #{e.contract_id} | Client #{e.client_id} | "
+            f"Date de début : {e.start_date} | Date de fin : {e.end_date or 'N/A'} | Support: {e.user.name or 'N/A'} | Lieu : {e.location or 'N/A'}"
         )
 
-    choice = int(input("Choose event (number): ")) - 1
+    choice = int(input("Choisissez l'événement à modifier : ")) - 1
     event = events[choice]
 
-    print("\nEnter new values (leave blank to keep current):")
-    start_input = input(f"Start date [{event.start_date.strftime('%Y-%m-%d %H:%M')}]: ")
+    print("\nEntrez de nouvelles valeurs (laissez blanc pour ne pas modifier):")
+    start_input = input(f"Date de début : [{event.start_date.strftime('%Y-%m-%d %H:%M')}]: ")
     end_input = input(
-        f"End date [{event.end_date.strftime('%Y-%m-%d %H:%M') if event.end_date else ''}]: "
+        f"Date de fin : [{event.end_date.strftime('%Y-%m-%d %H:%M') if event.end_date else ''}]: "
     )
 
     start_date = (
@@ -96,19 +96,19 @@ def update_event_view(current_user):
         users = users_service.get_all_users()
         for i, user in enumerate(users, start=1):
             print(
-                f"{i}. User #{user.id}  Support: {user.name} | Role: {user.role.name}"
+                f"{i}. Support: {user.name} | Role: {user.role.name}"
             )
-        user_choice = int(input("Choose event (number): ")) - 1
-        chosen_user_id = events[user_choice].id
+        user_choice = int(input("Modifier l'utilisateur attribué (numéro) : ")) - 1
+        chosen_user_id = users[user_choice].id
 
-    location = input(f"Location [{event.location or ''}]: ") or None
-    attendees_input = input(f"Attendees [{event.attendees or ''}]: ")
+    location = input(f"Lieu [{event.location or ''}]: ") or None
+    attendees_input = input(f"Nombre d'invités [{event.attendees or ''}]: ")
     attendees = int(attendees_input) if attendees_input else None
     notes = input(f"Notes [{event.notes or ''}]: ") or None
 
-    contract_input = input(f"Contract ID [{event.contract_id}]: ")
+    contract_input = input(f"Id du contrat : [{event.contract_id}]: ")
     contract_id = int(contract_input) if contract_input else None
-    client_input = input(f"Client ID [{event.client_id}]: ")
+    client_input = input(f"Id du client : [{event.client_id}]: ")
     client_id = int(client_input) if client_input else None
 
     updated_event = events_service.update_event(
@@ -124,11 +124,11 @@ def update_event_view(current_user):
         client_id=client_id,
     )
 
-    print("\n✅ Event updated successfully!")
+    print("\nÉvénement mis à jour avec succès !")
     print(
-        f"Event #{updated_event.id} | Contract #{updated_event.contract_id} | Client #{updated_event.client_id} | "
-        f"Start: {updated_event.start_date} | End: {updated_event.end_date or 'N/A'} | "
-        f"Support: {updated_event.user.name or 'N/A'} | Location: {updated_event.location or 'N/A'} | Attendees: {updated_event.attendees or 'N/A'}"
+        f"Événement #{updated_event.id} | Contrat #{updated_event.contract_id} | Client #{updated_event.client_id} | "
+        f"Date de début: {updated_event.start_date} | Date de fin : {updated_event.end_date or 'N/A'} | "
+        f"Support: {updated_event.user.name or 'N/A'} | Localisation : {updated_event.location or 'N/A'} | Nombre d'invités: {updated_event.attendees or 'N/A'}"
     )
 
 
@@ -136,64 +136,68 @@ def create_event_view(current_user: User):
     db = next(get_db())
     clients_service = ClientService(db=db)
     events_service = EventService(db=db)
+    users_service = UserService(db=db)
 
     clients = clients_service.get_clients_with_signed_contracts(user_id=current_user.id)
     if not clients:
-        print(f"❌ No clients with signed contracts for the user {current_user.name}.")
+        print(f"Pas de contrats signés par {current_user.name}.")
         return
 
     contracts = []
-    print("Available contracts:")
+    print("Contrats disponibles pour les clients dont vous êtes responsable :")
     for client in clients:
-        for contract in client.contracts:
+        for i,contract in enumerate(client.contracts, start=1):
             contracts.append(contract)
             print(
-                f"{len(contracts)}. Contract #{contract.id} | "
+                f"{i}. Contrat #{contract.id} | "
                 f"Client: {client.full_name} | "
                 f"Total: {contract.total_amount}"
             )
 
     if not contracts:
-        print("❌ No signed contracts found.")
+        print("Pas de contrats trouvés !")
         return
 
-    contract_choice = int(input("Choose contract (number): ")) - 1
-    if contract_choice < 0 or contract_choice >= len(contracts):
-        print("❌ Invalid choice.")
-        return
-
+    contract_choice = int(input("Choisissez un contrat (numéro) ")) - 1
+  
     contract = contracts[contract_choice]
     client = contract.client
 
-    start_date_str = input("Enter start date (YYYY-MM-DD HH:MM): ")
+    start_date_str = input("Entrez la date de début (YYYY-MM-DD HH:MM): ")
     start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M")
 
-    end_date_str = input("Enter end date (YYYY-MM-DD HH:MM, leave blank if none): ")
+    end_date_str = input("Entrez la date de fin : (YYYY-MM-DD HH:MM, leave blank if none): ")
     end_date = (
         datetime.strptime(end_date_str, "%Y-%m-%d %H:%M") if end_date_str else None
     )
-
-    support_contact = input("Support contact (optional): ") or None
-    location = input("Location (optional): ") or None
-    attendees_input = input("Number of attendees (optional): ")
+    location = input("Lieu : ") or None
+    attendees_input = input("Nombre d'invités : ")
     attendees = int(attendees_input) if attendees_input else None
-    notes = input("Notes (optional): ") or None
+
+    users = users_service.get_all_users()
+    print("Utilisateurs disponibles :")
+    for i, user in enumerate(users, start=1):
+        print(f"{i}. {user.name} ({user.email})")
+    user_choice = int(input("Choisissez l'utilisateur (numéro) : ")) - 1
+    user_id = users[user_choice].id
+
+    notes = input("Notes (optionnel): ") or None
 
     event = events_service.create_event(
         current_user=current_user,
         contract_id=contract.id,
         client_id=client.id,
+        user_id=user_id,
         start_date=start_date,
         end_date=end_date,
-        support_contact=support_contact,
         location=location,
         attendees=attendees,
         notes=notes,
     )
 
-    print("\n✅ Event created successfully!")
+    print("\nÉvénement créé avec succès")
     print(
-        f"Event #{event.id} | Contract: {contract.id} | Client: {client.full_name} | "
-        f"Start: {event.start_date} | End: {event.end_date or 'N/A'} | "
-        f"Support: {event.support_contact or 'N/A'} | Location: {event.location or 'N/A'}"
+        f"Événement #{event.id} | Contrat: {contract.id} | Client: {client.full_name} | "
+        f"Date de début: {event.start_date} | Date de fin : {event.end_date or 'N/A'} | "
+        f"| Lieu: {event.location or 'N/A'}"
     )

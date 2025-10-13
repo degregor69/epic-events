@@ -110,7 +110,7 @@ def update_user_view(current_user, db=None):
     return current_user
 
 
-def get_user_id_to_be_updated(users: list[User]):
+def get_user_id_to_be_updated(users):
     print("\nQuel utilisateur voulez-vous modifiez ?")
     for i, user in enumerate(users, start=1):
         print(f"{i}. {user.email}")
@@ -134,7 +134,6 @@ def delete_user_view(current_user, db=None):
 
     row_number = get_user_id_to_be_deleted(users)
     user_to_delete = users[int(row_number) - 1]
-    print(user_to_delete)
     users_service = UserService(db=db)
     users_service.delete_user(current_user, user_id=user_to_delete.id)
     print(f"User : {user_to_delete.id} | {user_to_delete.name} deleted")
