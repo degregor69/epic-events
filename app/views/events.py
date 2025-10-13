@@ -21,7 +21,7 @@ def list_all_events(callback=None):
     for e in events:
         print(
             f"\nID: {e.id} | Client ID: {e.client_id} | "
-            f"Start date :  {e.start_date} |  End date :  {e.end_date} | Location : {e.location} | Support ID: {e.support_contact}"
+            f"Start date :  {e.start_date} |  End date :  {e.end_date} | Location : {e.location} | Support : {e.user.name}"
         )
 
     # TODO remove callback
