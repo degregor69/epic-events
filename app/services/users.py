@@ -38,8 +38,10 @@ class UserService:
     @is_management
     def delete_user(self, current_user, user_id: int):
         user = self.user_db.get_by_id(user_id)
-        if user:
-            self.user_db.delete(user)
+        print(f"Utilisateur supprimé: {user}")
+        if not user:
+            raise Exception("User to be deleted not found")
+        self.user_db.delete(user)
 
     def login_user(self, email: str, password: str):
         user = self.user_db.get_by_email(email)
