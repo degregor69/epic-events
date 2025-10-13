@@ -17,7 +17,7 @@ def list_all_contracts():
     for c in contracts:
         print(
             f"\nID: {c.id} | Client ID: {c.client_id} | User ID: {c.user_id} | "
-            f"Total: {c.total_amount} | Pending: {c.pending_amount} | Signed: {c.signed}\n"
+            f"Total: {c.total_amount} | Pending: {c.pending_amount} | Signed: {c.signed}"
         )
 
 
@@ -31,37 +31,35 @@ def create_contract_view(current_user):
     contracts_service = ContractService(db=db)
 
     clients = clients_service.get_all_clients()
-    print("Available clients:")
+    print("Clients disponibles :")
     for i, client in enumerate(clients, start=1):
         print(f"{i}. {client.full_name} ({client.company})")
-    client_choice = int(input("Choose client (number): ")) - 1
+    client_choice = int(input("Choisissez un client en entrant le numéro : ")) - 1
     client_id = clients[client_choice].id
 
     users = users_service.get_all_users()
-    print("Assign contract to user:")
+    print("Assignez le contrat à un utilisateur :")
     for i, user in enumerate(users, start=1):
         print(f"{i}. {user.name} ({user.email})")
-    user_choice = int(input("Choose user (number): ")) - 1
+    user_choice = int(input("Choisissez l'utilisateur en entrant le numéro : ")) - 1
     user_id = users[user_choice].id
 
-    total_amount = float(input("Enter total amount: "))
-    pending_amount = float(input("Enter pending amount: "))
-    signed_input = input("Is it signed? (y/N): ").lower()
-    signed = signed_input == "y"
+    total_amount = float(input("Entrez le montant du contrat : "))
+    pending_amount = float(input("Entrez le montant restant : "))
+    signed_input = input("Le contrat est-il signé ? (o/N): ").lower()
+    signed = signed_input == "o"
 
     contract = contracts_service.create_contract(
         current_user=current_user,
-        db=db,
         user_id=user_id,
         client_id=client_id,
         total_amount=total_amount,
         pending_amount=pending_amount,
         signed=signed,
     )
-    print(contract)
 
     print(
-        f"✅ Contract #{contract.id} created for client {clients[client_choice].full_name}"
+        f"✅ Contrat #{contract.id} créé pour le client {clients[client_choice].full_name}"
     )
 
 
@@ -80,58 +78,56 @@ def update_contract_view(current_user):
 
     contracts = contracts_service.get_all_contracts()
     if not contracts:
-        print("❌ No contracts found.")
+        print("Pas de contrats trouvés.")
         return
 
-    print("Available contracts:")
+    print("Contrats disponibles : ")
     for i, contract in enumerate(contracts, start=1):
-        client = contract.client.full_name if contract.client else "N/A"
         print(
-            f"{i}. Contract #{contract.id} | Client: {client} | "
-            f"Total: {contract.total_amount} | Pending: {contract.pending_amount} | "
-            f"Signed: {'✅' if contract.signed else '❌'}"
+            f"{i}. | Client: {contract.client.full_name} | "
+            f"Total : {contract.total_amount} | Restant : {contract.pending_amount} | "
+            f"Signed : {"Oui" if contract.signed else "Non"}"
         )
-    contract_choice = int(input("Choose contract (number): ")) - 1
+    contract_choice = int(input("Choisissez le numéro de contrat : ")) - 1
     contract_id = contracts[contract_choice].id
 
-    print("\nEnter new values (leave blank to keep current):")
+    print("\nEntrez les nouvelles valeurs (laissez blanc pour passer):")
 
-    total_amount_input = input("New total amount: ")
+    total_amount_input = input("Nouveau montant total : ")
     total_amount = float(total_amount_input) if total_amount_input else None
 
-    pending_amount_input = input("New pending amount: ")
+    pending_amount_input = input("Nouveau montant restant : ")
     pending_amount = float(pending_amount_input) if pending_amount_input else None
 
-    signed_input = input("Is it signed? (y/N/leave blank to keep): ").lower()
+    signed_input = input("Est-ce signé ? (o/N): ").lower()
     signed = None
-    if signed_input == "y":
+    if signed_input == "o":
         signed = True
     elif signed_input == "n":
         signed = False
 
-    change_user = input("Change assigned user? (y/N): ").lower() == "y"
+    change_user = input("Voulez-vous modifier l'utilisateur assigné (o/N): ").lower() == "o"
     user_id = None
     if change_user:
         users = users_service.get_all_users()
-        print("Available users:")
+        print("Utilisateurs disponibles :")
         for i, user in enumerate(users, start=1):
             print(f"{i}. {user.name} ({user.email})")
-        user_choice = int(input("Choose user (number): ")) - 1
+        user_choice = int(input("Choisissez l'utilisateur (numéro) : ")) - 1
         user_id = users[user_choice].id
 
-    change_client = input("Change client? (y/N): ").lower() == "y"
+    change_client = input("Voulez-vous changer le client ? (o/N): ").lower() == "y"
     client_id = None
     if change_client:
         clients = clients_service.get_all_clients()
-        print("Available clients:")
+        print("Clients disponibles :")
         for i, client in enumerate(clients, start=1):
             print(f"{i}. {client.full_name} ({client.company})")
-        client_choice = int(input("Choose client (number): ")) - 1
+        client_choice = int(input("Choisissez le client (numéro) : ")) - 1
         client_id = clients[client_choice].id
 
     updated_contract = contracts_service.update_contract(
         current_user=current_user,
-        db=db,
         contract_id=contract_id,
         total_amount=total_amount,
         pending_amount=pending_amount,
@@ -140,14 +136,14 @@ def update_contract_view(current_user):
         client_id=client_id,
     )
 
-    print("\n✅ Contract updated successfully!")
+    print("\n Contraté modifié avec succès !")
     client_name = (
         updated_contract.client.full_name if updated_contract.client else "N/A"
     )
     print(
-        f"Contract #{updated_contract.id} | Client: {client_name} | "
-        f"Total: {updated_contract.total_amount} | Pending: {updated_contract.pending_amount} | "
-        f"Signed: {'✅' if updated_contract.signed else '❌'}"
+        f"Contrat #{updated_contract.id} | Client: {client_name} | "
+        f"Total: {updated_contract.total_amount} | Restant : {updated_contract.pending_amount} | "
+        f"Signed: {"Oui" if updated_contract.signed else "Non"}"
     )
 
 
@@ -155,28 +151,27 @@ def list_contracts_filtered_view(current_user):
     db = next(get_db())
     contracts_service = ContractService(db=db)
 
-    print("Filter contracts:")
-    only_unsigned = input("Show only unsigned contracts? (y/N): ").lower() == "y"
+    print("Voulez-vous filtrer les contrats ?:")
+    only_unsigned = input("Montrer seulement les contrats signés ? (o/N): ").lower() == "o"
     only_pending = (
-        input("Show only contracts with pending amount? (y/N): ").lower() == "y"
+        input("Montrer seulement les contrats avec un montant restant (o/N): ").lower() == "o"
     )
 
     contracts = contracts_service.get_contracts_filtered(
         current_user=current_user,
-        db=db,
         only_unsigned=only_unsigned,
         only_pending=only_pending,
     )
 
     if not contracts:
-        print("✅ No contracts found with the selected filters.")
+        print("Pas de contrats trouvés avec ces filtres.")
         return
 
-    print("\nFiltered contracts:")
+    print("\nContrats :")
     for c in contracts:
         client_name = c.client.full_name if c.client else "N/A"
         user_name = c.user.name if c.user else "N/A"
         print(
-            f"Contract #{c.id} | Client: {client_name} | Assigned to: {user_name} | "
-            f"Total: {c.total_amount} | Pending: {c.pending_amount} | Signed: {'✅' if c.signed else '❌'}"
+            f"Contrat #{c.id} | Client: {client_name} | Assigné à : {user_name} | "
+            f"Total: {c.total_amount} | Restant : {c.pending_amount} | Signé : {"Oui" if c.signed else "Non"}"
         )
