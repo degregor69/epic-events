@@ -23,17 +23,22 @@ def login_view(db=None):
 
 
 def get_create_user_data(roles) -> dict:
-    name = ask("Entrez le nom complet de l'utilisateur : ")
-    email = ask("Entrez l'email : ")
-    employee_number = int(ask("Entrez le numéro d'employé : "))
+    name = input(
+"Entrez le nom complet de l'utilisateur : ")
+    email = input(
+"Entrez l'email : ")
+    employee_number = int(input(
+"Entrez le numéro d'employé : "))
 
     print("Rôles disponibles :")
     for i, role in enumerate(roles, start=1):
         print(f"{i}. {role.name}")
-    role_choice = int(ask("Choisissez le rôle en entrant le numéro : ")) - 1
+    role_choice = int(input(
+"Choisissez le rôle en entrant le numéro : ")) - 1
     role_id = roles[role_choice].id
 
-    password = ask("Entrez le mot de passe : ")
+    password = input(
+"Entrez le mot de passe : ")
 
     return {
         "name": name,
@@ -73,15 +78,19 @@ def create_user_view(current_user, db=None):
 
 def get_update_user_data(roles) -> dict:
 
-    name = ask("Nouveau nom (laissez blanc pour passer): ") or None
-    email = ask("Nouvel email (laissez blanc pour passer) : ") or None
-    employee_number_input = ask("Nouveau numéro d'employé (laissez blanc pour passer) : ")
+    name = input(
+"Nouveau nom (laissez blanc pour passer): ") or None
+    email = input(
+"Nouvel email (laissez blanc pour passer) : ") or None
+    employee_number_input = input(
+"Nouveau numéro d'employé (laissez blanc pour passer) : ")
     employee_number = int(employee_number_input) if employee_number_input else None
 
     print("Rôles disponibles :")
     for i, role in enumerate(roles, start=1):
         print(f"{i}. {role.name}")
-    role_choice_input = ask("Choisissez un nouveau rôle en rentrant le numéro (laissez blanc pour passer) : ")
+    role_choice_input = input(
+"Choisissez un nouveau rôle en rentrant le numéro (laissez blanc pour passer) : ")
     role_id = roles[int(role_choice_input) - 1].id if role_choice_input else None
 
     return {
