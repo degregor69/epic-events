@@ -69,3 +69,13 @@ psql -U epic_user -d epic_events -p 5432 -h 127.0.0.1
 \dt
 SELECT * FROM users;
 ```
+
+## Use of the app
+
+To run the app :
+
+```bash
+python epicevents.py
+```
+
+You can use ids used in the seeds to connect to the app as the chosen user
