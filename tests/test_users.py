@@ -116,6 +116,7 @@ def test_update_user_with_user_not_found(db, management_user):
         )
         assert str(exc.value) == "User with id 999 not found"
 
+
 def test_delete_user_with_user_not_found(db, management_user):
     users_service = UserService(db=db)
     with pytest.raises(Exception) as exc:
@@ -125,6 +126,7 @@ def test_delete_user_with_user_not_found(db, management_user):
         )
         assert str(exc.value) == "User with id 999 not found"
 
+
 def test_get_all_users(db, support_user, management_user):
     users_service = UserService(db=db)
     db_users = users_service.get_all_users()
@@ -132,6 +134,7 @@ def test_get_all_users(db, support_user, management_user):
     assert len(db_users) == 2
     assert management_user in db_users
     assert support_user in db_users
+
 
 def test_create_user_view_permission_denied(
     support_user,
@@ -206,12 +209,13 @@ def test_login_user_wrong_password(db):
     assert message == "Wrong password"
     assert returned_user is None
 
+
 def test_login_view_success(db, management_user):
     with patch("app.views.users.getpass") as mock_get_pass, patch("builtins.input") as mock_email_input:
         mock_get_pass.return_value = "test123?"
         mock_email_input.return_value = management_user.email
 
-        connected_user = login_view(db) 
+        connected_user = login_view(db)
         assert connected_user == management_user
 
 
@@ -246,14 +250,17 @@ def test_get_update_user_data(db, roles):
         assert update_data["employee_number"] == 202
         assert update_data["role_id"] == roles[1].id
 
+
 def test_get_user_id_to_be_updated(db, support_user, management_user):
     with patch("builtins.input") as mock_input:
         mock_input.return_value = "5"
         user_id = get_user_id_to_be_updated([support_user, management_user])
         assert user_id == 5
 
+
 def test_get_user_id_to_be_deleted(db, user_to_be_deleted, management_user):
     with patch("builtins.input") as mock_input:
         mock_input.return_value = str(user_to_be_deleted.id)
-        user_id = get_user_id_to_be_updated([user_to_be_deleted, management_user])
+        user_id = get_user_id_to_be_updated(
+            [user_to_be_deleted, management_user])
         assert user_id == user_to_be_deleted.id

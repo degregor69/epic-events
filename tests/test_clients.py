@@ -91,7 +91,8 @@ def test_update_client_with_non_sales_user(db, sales_user, support_user, clients
         )
         assert str(exc.value) == f"Client with id {client.id} not found"
 
-def test_get_clients_by_user(db, sales_user, support_user,clients):
+
+def test_get_clients_by_user(db, sales_user, support_user, clients):
     clients[1].internal_contact_id = support_user.id
     db.commit()
     clients_service = ClientService(db=db)
@@ -103,14 +104,16 @@ def test_get_clients_by_user(db, sales_user, support_user,clients):
 
 def test_get_clients_with_signed_contracts(db, sales_user, clients, contracts):
     clients_service = ClientService(db=db)
-    signed_clients = clients_service.get_clients_with_signed_contracts(sales_user.id)
-    
+    signed_clients = clients_service.get_clients_with_signed_contracts(
+        sales_user.id)
+
     assert len(signed_clients) == 1
-    
+
     client = signed_clients[0]
-    
+
     assert client.id == clients[0].id
     assert any(contract.signed for contract in client.contracts)
+
 
 def test_update_client_with_client_not_found(db, sales_user):
     clients_service = ClientService(db=db)

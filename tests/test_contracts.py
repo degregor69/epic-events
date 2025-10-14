@@ -102,6 +102,7 @@ def test_sales_update_contract(db, sales_user, contracts, clients, management_us
     assert db_contract.user_id == management_user.id
     assert db_contract.client_id == clients[1].id
 
+
 def test_update_contract_with_contract_not_found(db, sales_user, contracts, clients):
     with pytest.raises(Exception) as exc:
         contracts_service = ContractService(db=db)
@@ -123,26 +124,29 @@ def test_get_all_contracts_for_user_clients(db, sales_user, contracts):
     db.commit()
 
     contracts_service = ContractService(db=db)
-    db_contracts = contracts_service.get_all_contracts_for_user_clients(sales_user.id)
+    db_contracts = contracts_service.get_all_contracts_for_user_clients(
+        sales_user.id)
 
     assert len(db_contracts) == 2
     assert db_contracts[0].id == contract.id
     assert db_contracts[0].client.internal_contact_id == sales_user.id
 
+
 def test_get_contracts_filtered_by_only_unsigned(db, contracts, sales_user):
     contracts_service = ContractService(db=db)
     filtered_contracts = contracts_service.get_contracts_filtered(
         current_user=sales_user, only_unsigned=True)
-    
+
     assert len(filtered_contracts) == 1
     first_contract = filtered_contracts[0]
     assert first_contract.signed is False
+
 
 def test_get_contracts_filtered_by_only_pending(db, contracts, sales_user):
     contracts_service = ContractService(db=db)
     filtered_contracts = contracts_service.get_contracts_filtered(
         current_user=sales_user, only_pending=True)
-    
+
     assert len(filtered_contracts) == 2
     for contract in filtered_contracts:
         assert contract.pending_amount > 0
