@@ -32,7 +32,7 @@ def test_management_login_and_create_user(db, management_user, roles):
 
         assert success is True
         assert message == "Login successful"
-   
+
         mock_get_create_data.return_value = {
             "name": "Integration Created",
             "email": "integration.created@example.com",
@@ -43,10 +43,12 @@ def test_management_login_and_create_user(db, management_user, roles):
 
         created_user = create_user_view(management_user, db=db)
 
-        db_user = db.query(User).filter_by(email="integration.created@example.com").first()
+        db_user = db.query(User).filter_by(
+            email="integration.created@example.com").first()
         assert db_user is not None
         assert db_user.email == "integration.created@example.com" == created_user.email
         assert db_user.hashed_password != "integration-pass-1"
+
 
 def test_client_with_contract_and_create_an_event_and_updating_it(db, sales_user, management_user, support_user):
 
@@ -58,13 +60,11 @@ def test_client_with_contract_and_create_an_event_and_updating_it(db, sales_user
         email="test_user@example.com",
         phone="0123456789",
         company="Test Corp")
-  
 
-
-    db_client = db.query(Client).filter_by(email="test_user@example.com").first()
+    db_client = db.query(Client).filter_by(
+        email="test_user@example.com").first()
     assert db_client is not None
     assert db_client.id == created_client.id
-
 
     # Management user creates a contract for the new client
     contracts_service = ContractService(db=db)
@@ -78,10 +78,9 @@ def test_client_with_contract_and_create_an_event_and_updating_it(db, sales_user
     )
     assert created_contract.id is not None
 
-    
     # Sales user can now create an event for that contract and client
     events_service = EventService(db=db)
-    created_event = events_service.create_event(current_user=sales_user, 
+    created_event = events_service.create_event(current_user=sales_user,
                                                 contract_id=created_contract.id,
                                                 client_id=created_client.id,
                                                 user_id=support_user.id,
@@ -90,11 +89,10 @@ def test_client_with_contract_and_create_an_event_and_updating_it(db, sales_user
                                                 location="Test Location",
                                                 attendees=100,
                                                 notes="Test Notes")
-    
+
     assert created_event is not None
     assert created_event.contract_id == created_contract.id
     assert created_event.client_id == created_client.id
-
 
     # Sales user updates the number of attendes of the event
     updated_event = events_service.update_event(

@@ -150,4 +150,3 @@ def test_login_user_not_found(db):
     assert success is False
     assert message == "User not found"
     assert user is None
-
