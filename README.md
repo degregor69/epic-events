@@ -18,7 +18,7 @@ Epic Events is a CRM application developed as part of the OpenClassrooms Python 
 1. **Clone the project:**
 
 ```bash
-git clone <REPO_URL>
+git clone https://github.com/degregor69/epic-events
 cd epic-events
 ```
 
@@ -27,6 +27,7 @@ cd epic-events
 ```bash
 python -m venv .venv
 source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ## Database Setup
