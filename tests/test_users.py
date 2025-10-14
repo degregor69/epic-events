@@ -12,7 +12,7 @@ from app.utils.security import (
 )
 from unittest.mock import patch
 
-from app.views.users import create_user_view, update_user_view, delete_user_view, login_view
+from app.views.users import create_user_view, get_create_user_data, update_user_view, delete_user_view, login_view
 from app.utils.security import hash_password
 
 fake = Faker()
@@ -187,3 +187,19 @@ def test_login_view_success(db, management_user):
 
         connected_user = login_view(db) 
         assert connected_user == management_user
+
+def test_get_create_user_data(db, roles):
+    with patch("builtins.input") as mock_input, patch("app.views.users.getpass") as mock_getpass:
+        mock_input.side_effect = [
+            "Test User",
+            "test_user@epic-events.com",
+            "101",
+            str(roles[0].id),
+            "test123?",
+        ]
+        creation_data = get_create_user_data(roles)
+        assert creation_data["name"] == "Test User"
+        assert creation_data["email"] == "test_user@epic-events.com"
+        assert creation_data["employee_number"] == 101
+        assert creation_data["role_id"] == roles[0].id
+        assert creation_data["password"] == "test123?"
