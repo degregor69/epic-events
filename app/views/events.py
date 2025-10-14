@@ -11,7 +11,7 @@ from app.config import get_db
 
 
 @is_authenticated
-def list_all_events(callback=None):
+def list_all_events():
     db = next(get_db())
     events_service = EventService(db=db)
     events = events_service.get_all_events()
@@ -24,9 +24,6 @@ def list_all_events(callback=None):
             f"Date de début :  {e.start_date} |  Date de fin :  {e.end_date} | Lieu : {e.location} | Support : {e.user.name}"
         )
 
-    # TODO remove callback
-    if callback:
-        callback()
 
 
 def list_my_events(current_user, db=None):
