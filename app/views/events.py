@@ -21,7 +21,7 @@ def list_all_events(callback=None):
     for e in events:
         print(
             f"\nID: {e.id} | Client ID: {e.client_id} | "
-            f"Start date :  {e.start_date} |  End date :  {e.end_date} | Location : {e.location} | Support : {e.user.name}"
+            f"Date de début :  {e.start_date} |  Date de fin :  {e.end_date} | Lieu : {e.location} | Support : {e.user.name}"
         )
 
     # TODO remove callback
@@ -35,8 +35,8 @@ def list_my_events(current_user, db=None):
     events = service.get_my_events(current_user=current_user)
     for e in events:
         print(
-            f"Event #{e.id} | Contract #{e.contract_id} | Client #{e.client_id} | "
-            f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Location: {e.location or 'N/A'}"
+            f"Événement #{e.id} | Contrat #{e.contract_id} | Client #{e.client_id} | "
+            f"Date de début : {e.start_date} | Date de fin : {e.end_date or 'N/A'} | Lieu : {e.location or 'N/A'}"
         )
 
 
@@ -47,14 +47,14 @@ def list_events_without_support_view(current_user):
         current_user=current_user)
 
     if not events:
-        print("✅ All events have a support assigned.")
+        print("Tous les événements ont un support assigné.")
         return
 
-    print("📅 Events without support:")
+    print("Les événéments sans support assigné :")
     for e in events:
         print(
-            f"Event #{e.id} | Contract #{e.contract_id} | Client #{e.client_id} | "
-            f"Start: {e.start_date} | End: {e.end_date or 'N/A'} | Location: {e.location or 'N/A'}"
+            f"Événement #{e.id} | Contrat #{e.contract_id} | Client #{e.client_id} | "
+            f"Date de début : {e.start_date} | Date de fin: {e.end_date or 'N/A'} | Lieu : {e.location or 'N/A'}"
         )
 
 
