@@ -59,7 +59,7 @@ def create_contract_view(current_user):
     )
 
     print(
-        f"✅ Contrat #{contract.id} créé pour le client {clients[client_choice].full_name}"
+        f"Contrat #{contract.id} créé pour le client {clients[client_choice].full_name}"
     )
 
 
