@@ -185,7 +185,6 @@ def test_login_user_not_found(db):
 
 
 def test_login_user_wrong_password(db):
-    # create a user with a hashed password so verify_password will run and fail for wrong pw
     user = db.query(User).filter_by(email="wrongpw@example.com").first()
     if not user:
         user = User(
@@ -214,6 +213,7 @@ def test_login_view_success(db, management_user):
 
         connected_user = login_view(db) 
         assert connected_user == management_user
+
 
 def test_get_create_user_data(db, roles):
     with patch("builtins.input") as mock_input, patch("app.views.users.getpass") as mock_getpass:
@@ -251,3 +251,9 @@ def test_get_user_id_to_be_updated(db, support_user, management_user):
         mock_input.return_value = "5"
         user_id = get_user_id_to_be_updated([support_user, management_user])
         assert user_id == 5
+
+def test_get_user_id_to_be_deleted(db, user_to_be_deleted, management_user):
+    with patch("builtins.input") as mock_input:
+        mock_input.return_value = str(user_to_be_deleted.id)
+        user_id = get_user_id_to_be_updated([user_to_be_deleted, management_user])
+        assert user_id == user_to_be_deleted.id
