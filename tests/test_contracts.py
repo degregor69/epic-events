@@ -101,3 +101,30 @@ def test_sales_update_contract(db, sales_user, contracts, clients, management_us
     assert db_contract.signed is True
     assert db_contract.user_id == management_user.id
     assert db_contract.client_id == clients[1].id
+
+def test_update_contract_with_contract_not_found(db, sales_user, contracts, clients):
+    with pytest.raises(Exception) as exc:
+        contracts_service = ContractService(db=db)
+        contracts_service.update_contract(
+            current_user=sales_user,
+            contract_id=999,
+            total_amount=8000,
+            pending_amount=3000,
+            signed=True,
+            user_id=sales_user.id,
+            client_id=clients[1].id,
+        )
+        assert str(exc.value) == "Contract with id 999 not found"
+
+
+def test_get_all_contracts_for_user_clients(db, sales_user, contracts):
+    contract = contracts[0]
+    contract.client.internal_contact_id = sales_user.id
+    db.commit()
+
+    contracts_service = ContractService(db=db)
+    db_contracts = contracts_service.get_all_contracts_for_user_clients(sales_user.id)
+
+    assert len(db_contracts) == 2
+    assert db_contracts[0].id == contract.id
+    assert db_contracts[0].client.internal_contact_id == sales_user.id

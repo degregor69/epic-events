@@ -12,7 +12,7 @@ def login_view(db=None):
     users_service = UserService(db=db)
     success, message, user = users_service.login_user(email, password)
     if not success and not user:
-        print(f"❌ {message}")
+        print(f"{message}")
         return login_view(db=db)
 
     print(f"✅ {message}")

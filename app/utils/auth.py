@@ -44,10 +44,10 @@ def can_update_event(func):
 
         event = self.event_db.get_by_id(event_id)
         if not event:
-            raise Exception(f"❌ Event {event_id} not found")
+            raise Exception(f"Event {event_id} not found")
 
         if current_user.role.name == "support" and event.user_id != current_user.id:
-            raise Exception("❌ Access denied – not your event")
+            raise Exception("Access denied – not your event")
 
         return func(self, *args, **kwargs)
 

@@ -15,7 +15,7 @@ class ContractService:
     def get_all_contracts(self):
         return self.contract_db.get_all()
 
-    def get_all_contracts_for_clients_user(self, user_id: int):
+    def get_all_contracts_for_user_clients(self, user_id: int):
         return self.contract_db.get_all_for_clients_user(user_id)
 
     @is_management
@@ -50,7 +50,7 @@ class ContractService:
     ):
         contract = self.contract_db.get_by_id(contract_id)
         if not contract:
-            raise Exception(f"❌ Contract with id {contract_id} not found")
+            raise Exception(f"Contract with id {contract_id} not found")
 
         data = {
             "total_amount": total_amount,

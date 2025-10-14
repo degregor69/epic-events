@@ -48,7 +48,7 @@ class ClientService:
     ):
         client = self.client_db.get_by_id_and_user(client_id, current_user.id)
         if not client:
-            raise Exception(f"❌ Client with id {client_id} not found")
+            raise Exception(f"Client with id {client_id} not found")
 
         data = {
             "full_name": full_name,

@@ -12,7 +12,7 @@ def is_management(func):
             raise Exception("current_user argument missing")
 
         if current_user.role.name != "management":
-            raise Exception("❌ Access denied")
+            raise Exception("Access denied")
 
         return func(*args, **kwargs)
 
@@ -71,6 +71,6 @@ def is_management_or_responsible_sales(func):
         ):
             return func(self, *args, **kwargs)
 
-        raise Exception("❌ Access denied")
+        raise Exception("Access denied")
 
     return wrapper

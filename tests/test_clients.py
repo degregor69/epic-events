@@ -89,4 +89,4 @@ def test_update_client_with_non_sales_user(db, sales_user, support_user, clients
             company="Updated Corp",
             internal_contact_id=support_user.id,
         )
-        assert str(exc.value) == f"❌ Client with id {client.id} not found"
+        assert str(exc.value) == f"Client with id {client.id} not found"
