@@ -11,7 +11,6 @@ from app.utils.security import (
     create_refresh_token,
 )
 from unittest.mock import patch
-
 from app.views.users import create_user_view, update_user_view, delete_user_view
 
 fake = Faker()
@@ -88,10 +87,7 @@ def test_create_user_view_success(db, management_user):
 
 
 def test_update_user_view_success(db, support_user, roles, management_user):
-    from unittest.mock import patch
-    from app.views.users import update_user_view
-
-    with patch("app.views.users.get_update_user_data") as mock_get_update_user_data:
+    with patch("app.views.users.get_update_user_data") as mock_get_update_user_data, patch("app.views.users.get_user_id_to_be_updated") as mock_get_user_id_to_be_updated:
         mock_get_update_user_data.return_value = {
             "user_id": support_user.id,
             "name": "New name",
@@ -99,6 +95,7 @@ def test_update_user_view_success(db, support_user, roles, management_user):
             "employee_number": 999,
             "role_id": roles[0].id,
         }
+        mock_get_user_id_to_be_updated.return_value = str(support_user.id)
         updated_user = update_user_view(current_user=management_user, db=db)
 
     db.refresh(support_user)
