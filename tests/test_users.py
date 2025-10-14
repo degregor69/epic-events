@@ -106,6 +106,33 @@ def test_update_user_view_success(db, support_user, roles, management_user):
         assert support_user.role_id == roles[0].id
 
 
+def test_update_user_with_user_not_found(db, management_user):
+    users_service = UserService(db=db)
+    with pytest.raises(Exception) as exc:
+        users_service.update_user(
+            current_user=management_user,
+            user_id=999,
+            updates={"name": "No one"},
+        )
+        assert str(exc.value) == "User with id 999 not found"
+
+def test_delete_user_with_user_not_found(db, management_user):
+    users_service = UserService(db=db)
+    with pytest.raises(Exception) as exc:
+        users_service.delete_user(
+            current_user=management_user,
+            user_id=999,
+        )
+        assert str(exc.value) == "User with id 999 not found"
+
+def test_get_all_users(db, support_user, management_user):
+    users_service = UserService(db=db)
+    db_users = users_service.get_all_users()
+
+    assert len(db_users) == 2
+    assert management_user in db_users
+    assert support_user in db_users
+
 def test_create_user_view_permission_denied(
     support_user,
     db,
