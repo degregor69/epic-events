@@ -12,7 +12,8 @@ from app.utils.security import (
 )
 from unittest.mock import patch
 
-from app.views.users import create_user_view, update_user_view, delete_user_view
+from app.views.users import create_user_view, update_user_view, delete_user_view, login_view
+from app.utils.security import hash_password
 
 fake = Faker()
 TOKEN_FILE = "token.json"
@@ -157,8 +158,6 @@ def test_login_user_not_found(db):
 
 
 def test_login_user_wrong_password(db):
-    from app.utils.security import hash_password
-
     # create a user with a hashed password so verify_password will run and fail for wrong pw
     user = db.query(User).filter_by(email="wrongpw@example.com").first()
     if not user:
@@ -180,3 +179,11 @@ def test_login_user_wrong_password(db):
     assert success is False
     assert message == "Wrong password"
     assert returned_user is None
+
+def test_login_view_success(db, management_user):
+    with patch("app.views.users.getpass") as mock_get_pass, patch("app.views.users.input") as mock_email_input:
+        mock_get_pass.return_value = "test123?"
+        mock_email_input.return_value = management_user.email
+
+        connected_user = login_view(db) 
+        assert connected_user == management_user

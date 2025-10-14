@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from app.config import Base, engine, SessionLocal
 from app.models import Event, Client, Contract, Role, User
+from app.utils.security import hash_password
 
 
 @pytest.fixture(scope="function")
@@ -43,7 +44,7 @@ def support_user(db, roles):
     user = User(
         name="Support User",
         email="support_user@example.com",
-        hashed_password="MotDePasse123!",
+        hashed_password=hash_password("test123?"),
         employee_number=1,
         role_id=support_role.id,
     )
@@ -59,7 +60,7 @@ def management_user(db, roles):
     user = User(
         name="Management User",
         email="management_user@example.com",
-        hashed_password="MotDePasse123!",
+        hashed_password=hash_password("test123?"),
         employee_number=2,
         role_id=management_role.id,
     )
@@ -75,7 +76,7 @@ def sales_user(db, roles):
     user = User(
         name="Sales User",
         email="sales_user@example.com",
-        hashed_password="MotDePasse123!",
+        hashed_password=hash_password("test123?"),
         employee_number=3,
         role_id=sales_role.id,
     )
@@ -91,7 +92,7 @@ def user_to_be_deleted(db, roles):
     user = User(
         name="User to be deleted",
         email="user_to_be_deleted@example.com",
-        hashed_password="MotDePasse123!",
+        hashed_password=hash_password("test123?"),
         employee_number=99999,
         role_id=support_role.id,
     )
