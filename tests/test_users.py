@@ -12,7 +12,7 @@ from app.utils.security import (
 )
 from unittest.mock import patch
 
-from app.views.users import create_user_view, get_create_user_data, update_user_view, delete_user_view, login_view
+from app.views.users import create_user_view, get_create_user_data, get_update_user_data, get_user_id_to_be_updated, update_user_view, delete_user_view, login_view
 from app.utils.security import hash_password
 
 fake = Faker()
@@ -181,7 +181,7 @@ def test_login_user_wrong_password(db):
     assert returned_user is None
 
 def test_login_view_success(db, management_user):
-    with patch("app.views.users.getpass") as mock_get_pass, patch("app.views.users.input") as mock_email_input:
+    with patch("app.views.users.getpass") as mock_get_pass, patch("builtins.input") as mock_email_input:
         mock_get_pass.return_value = "test123?"
         mock_email_input.return_value = management_user.email
 
@@ -203,3 +203,24 @@ def test_get_create_user_data(db, roles):
         assert creation_data["employee_number"] == 101
         assert creation_data["role_id"] == roles[0].id
         assert creation_data["password"] == "test123?"
+
+
+def test_get_update_user_data(db, roles):
+    with patch("builtins.input") as mock_input:
+        mock_input.side_effect = [
+            "Updated Name",
+            "updated_test_email@epic-events.com",
+            "202",
+            str(roles[1].id),
+        ]
+        update_data = get_update_user_data(roles)
+        assert update_data["name"] == "Updated Name"
+        assert update_data["email"] == "updated_test_email@epic-events.com"
+        assert update_data["employee_number"] == 202
+        assert update_data["role_id"] == roles[1].id
+
+def test_get_user_id_to_be_updated(db, support_user, management_user):
+    with patch("builtins.input") as mock_input:
+        mock_input.return_value = "5"
+        user_id = get_user_id_to_be_updated([support_user, management_user])
+        assert user_id == 5
