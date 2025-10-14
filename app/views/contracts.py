@@ -72,7 +72,7 @@ def update_contract_view(current_user):
     if current_user.role.name == "management":
         contracts = contracts_service.get_all_contracts()
     else:
-        contracts = contracts_service.get_all_contracts_for_clients_user(
+        contracts = contracts_service.get_all_contracts_for_user_clients(
             current_user.id
         )
 

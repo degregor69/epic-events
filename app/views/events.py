@@ -22,6 +22,7 @@ def list_all_events():
         print(
             f"\nID: {e.id} | Client ID: {e.client_id} | "
             f"Date de début :  {e.start_date} |  Date de fin :  {e.end_date} | Lieu : {e.location} | Support : {e.user.name}"
+            f"Nombre d'invités : {e.attendees} | Notes : {e.notes}"
         )
 
 
@@ -34,6 +35,7 @@ def list_my_events(current_user, db=None):
         print(
             f"Événement #{e.id} | Contrat #{e.contract_id} | Client #{e.client_id} | "
             f"Date de début : {e.start_date} | Date de fin : {e.end_date or 'N/A'} | Lieu : {e.location or 'N/A'}"
+            f"Nombre d'invités : {e.attendees} | Notes : {e.notes}"
         )
 
 
@@ -52,6 +54,7 @@ def list_events_without_support_view(current_user):
         print(
             f"Événement #{e.id} | Contrat #{e.contract_id} | Client #{e.client_id} | "
             f"Date de début : {e.start_date} | Date de fin: {e.end_date or 'N/A'} | Lieu : {e.location or 'N/A'}"
+            f"Nombre d'invités : {e.attendees} | Notes : {e.notes}"
         )
 
 
@@ -73,6 +76,7 @@ def update_event_view(current_user):
         print(
             f"{i}. | Contrat #{e.contract_id} | Client #{e.client_id} | "
             f"Date de début : {e.start_date} | Date de fin : {e.end_date or 'N/A'} | Support: {e.user.name or 'N/A'} | Lieu : {e.location or 'N/A'}"
+            f"Nombre d'invités : {e.attendees} | Notes : {e.notes}"
         )
 
     choice = int(input("Choisissez l'événement à modifier : ")) - 1
@@ -204,5 +208,5 @@ def create_event_view(current_user: User):
     print(
         f"Événement #{event.id} | Contrat: {contract.id} | Client: {client.full_name} | "
         f"Date de début: {event.start_date} | Date de fin : {event.end_date or 'N/A'} | "
-        f"| Lieu: {event.location or 'N/A'}"
+        f"Nombre d'invités : {event.attendees} | Notes : {event.notes}"
     )
