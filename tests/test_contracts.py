@@ -128,3 +128,12 @@ def test_get_all_contracts_for_user_clients(db, sales_user, contracts):
     assert len(db_contracts) == 2
     assert db_contracts[0].id == contract.id
     assert db_contracts[0].client.internal_contact_id == sales_user.id
+
+def test_get_contracts_filtered(db, contracts, sales_user):
+    contracts_service = ContractService(db=db)
+    filtered_contracts = contracts_service.get_contracts_filtered(
+        current_user=sales_user, only_unsigned=True)
+    
+    assert len(filtered_contracts) == 1
+    first_contract = filtered_contracts[0]
+    assert first_contract.signed is False
