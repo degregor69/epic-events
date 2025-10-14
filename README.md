@@ -46,10 +46,6 @@ GRANT ALL PRIVILEGES ON DATABASE epic_events TO epic_user;
 2. **Configure environment variables**
    In the project root, create a .env file or copy paste the .env.example file in your .env
 
-```bash
-DATABASE_URL=postgresql+psycopg2://epic_user:epic_password@localhost:5432/epic_events
-```
-
 ## Initialize the Database
 
 Once your .env file is ready, run:
@@ -66,10 +62,10 @@ This script will :
 
 ## Verify installation
 
-You can check by running this command
+You can check by running this command (use your own port, host or user that you have chosen if you changed from the .env.example)
 
 ```bash
-psql -U epic_user -d epic_events
+psql -U epic_user -d epic_events -p 5432 -h 127.0.0.1
 \dt
 SELECT * FROM users;
 ```
